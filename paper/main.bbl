@@ -1,4 +1,4 @@
-\begin{thebibliography}{39}
+\begin{thebibliography}{40}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -269,6 +269,13 @@ Ying-Li Tian.
 \newblock Evaluation of face resolution for expression analysis.
 \newblock In \emph{IEEE Conference on Computer Vision and Pattern Recognition
   Workshops (CVPRW)}, 2004.
+
+\bibitem[Vasiljevic et~al.(2016)Vasiljevic, Chakrabarti, and
+  Shakhnarovich]{vasiljevic2016blur}
+Igor Vasiljevic, Ayan Chakrabarti, and Gregory Shakhnarovich.
+\newblock Examining the impact of blur on recognition by convolutional
+  networks.
+\newblock \emph{arXiv preprint arXiv:1611.05760}, 2016.
 
 \bibitem[Wang et~al.(2016)Wang, Chang, Yang, Liu, and Huang]{wang2016vlr}
 Zhangyang Wang, Shiyu Chang, Yingzhen Yang, Ding Liu, and Thomas~S. Huang.

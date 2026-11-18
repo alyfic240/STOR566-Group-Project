@@ -57,6 +57,10 @@ print("run counts")
 check("18 protocol runs", sum(1 for k in runs if k[1] in ("std", "aug")) == 18 and N["nfinal"] == "18")
 check("9 reference runs", sum(1 for k in runs if k[1] == "ref") == 9 and N["nref"] == "9")
 
+print("references")
+nbib = open(os.path.join(PAPER, "main.bbl")).read().count("\\bibitem")
+check("the bibliography has 40 entries (the slides say 'From 5 to 40 references')", nbib == 40, str(nbib))
+
 print("Section 5.1")
 sds = {a: float(np.std([acc(a, "std", s, "clean") for s in range(3)], ddof=1)) for a in ARCHS}
 check("seed SD on original images is at most 1.4 points (standard training)",
