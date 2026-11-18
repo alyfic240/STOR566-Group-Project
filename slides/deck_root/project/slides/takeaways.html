@@ -1,0 +1,11 @@
+<section id="takeaways" class="dark" data-transition="fade">
+<p class="eyebrow">TAKEAWAYS</p>
+<h2>Three things to remember</h2>
+<div class="stack" style="gap:64px;padding-top:56px">
+<div class="take"><p class="k">1</p><div class="col grow" style="gap:0px"><p class="big">Clean accuracy ranks models correctly only on clean images.</p><p class="small">53 → 61 → 69% on original images; all three at the majority-class rate by σ = 0.2.</p></div></div>
+<div class="take"><p class="k">2</p><div class="col grow" style="gap:0px"><p class="big">Pre-training bought accuracy, not robustness.</p><p class="small">ResNet-18 against the small CNN: +8.1 points on original images, +0.3 under noise.</p></div></div>
+<div class="take"><p class="k">3</p><div class="col grow" style="gap:0px"><p class="big">Noise augmentation is cheap insurance, most of all for pretrained models.</p><p class="small">+10.0 to +18.9 points under noise; +9.2 (ResNet-18) and +3.9 (ViT-B/16) at low resolution, which it never saw.</p></div></div>
+</div>
+<div class="foot"><p class="f">Group 9 · STOR 566 · Fall 2026</p><div class="pg"></div></div>
+<aside>0:45. If you remember one thing: report accuracy under the conditions you expect, and say how you picked the checkpoint. Then questions.</aside>
+</section>

@@ -1,0 +1,12 @@
+{
+ "s_rq1_clean": "/_blob/7d1aefaff112aa94699a48adcd91feaf",
+ "s_rq2_curves": "/_blob/9455ca0c58cdd46433e621714d12993d",
+ "s_rq3_dumbbell": "/_blob/8a89bb47aa64842e069309d9a76abf57",
+ "s_collapse": "/_blob/e7de936f01e49b5817571503f0d39273",
+ "s_selection_resnet18": "/_blob/c8a4052716b8c6b46e96dc67a9769b3a",
+ "fig_levels_examples": "/_blob/a5faf8f203f16219e4b2ecd2c9c123f2",
+ "s_recall_std": "/_blob/220d1fa463b9682c33cabb5986dad967",
+ "s_rq2_relative": "/_blob/c87081ae632c675594c04e4f6d04e825",
+ "s_rq3_curves": "/_blob/aa3d288d7ca4b894966ef00e3621c082",
+ "fig_degradation_acc_extended": "/_blob/31616b3743c0b0e2ff642cd5f040bfb7"
+}

@@ -1,0 +1,36 @@
+\begin{tabular}{lccc}
+\toprule
+ & Original & Noise avg. & Resolution avg. \\
+\midrule
+\multicolumn{4}{l}{\emph{Seed-averaged accuracy (\%)}} \\
+Baseline CNN, standard & 53.2{\scriptsize\,[51.7, 54.6]} & 37.5{\scriptsize\,[36.5, 38.5]} & 38.0{\scriptsize\,[36.9, 39.1]} \\
+Baseline CNN, noise aug. & 53.5{\scriptsize\,[52.0, 54.9]} & 47.5{\scriptsize\,[46.3, 48.8]} & 39.4{\scriptsize\,[38.3, 40.6]} \\
+Baseline CNN, clean-sel. & 53.9{\scriptsize\,[52.5, 55.4]} & 34.4{\scriptsize\,[33.5, 35.2]} & 38.7{\scriptsize\,[37.6, 39.8]} \\
+ResNet-18, standard & 61.2{\scriptsize\,[59.9, 62.6]} & 37.8{\scriptsize\,[36.8, 38.8]} & 38.6{\scriptsize\,[37.5, 39.5]} \\
+ResNet-18, noise aug. & 63.1{\scriptsize\,[61.7, 64.5]} & 56.7{\scriptsize\,[55.5, 58.0]} & 47.7{\scriptsize\,[46.6, 48.9]} \\
+ResNet-18, clean-sel. & 63.7{\scriptsize\,[62.4, 65.1]} & 33.7{\scriptsize\,[32.8, 34.6]} & 39.7{\scriptsize\,[38.8, 40.6]} \\
+ViT-B/16, standard & 69.3{\scriptsize\,[67.8, 70.7]} & 44.0{\scriptsize\,[43.0, 44.9]} & 45.8{\scriptsize\,[44.8, 46.9]} \\
+ViT-B/16, noise aug. & 68.5{\scriptsize\,[67.0, 70.0]} & 61.9{\scriptsize\,[60.6, 63.2]} & 49.8{\scriptsize\,[48.6, 51.0]} \\
+ViT-B/16, clean-sel. & 69.5{\scriptsize\,[68.0, 70.9]} & 43.2{\scriptsize\,[42.3, 44.2]} & 45.7{\scriptsize\,[44.7, 46.7]} \\
+\addlinespace
+\multicolumn{4}{l}{\emph{Noise augmentation minus standard training (points)}} \\
+Baseline CNN & +0.3{\scriptsize\,[$-$0.6, +1.3]} & +10.0{\scriptsize\,[+9.1, +10.8]}$^{*}$ & +1.4{\scriptsize\,[+0.7, +2.1]}$^{*}$ \\
+ResNet-18 & +1.8{\scriptsize\,[+0.8, +2.8]}$^{*}$ & +18.9{\scriptsize\,[+17.9, +20.0]}$^{*}$ & +9.2{\scriptsize\,[+8.4, +9.9]}$^{*}$ \\
+ViT-B/16 & $-$0.7{\scriptsize\,[$-$1.5, +0.0]} & +17.9{\scriptsize\,[+16.9, +18.8]}$^{*}$ & +3.9{\scriptsize\,[+3.3, +4.5]}$^{*}$ \\
+\addlinespace
+\multicolumn{4}{l}{\emph{Clean-selected minus score-selected checkpoint (points)}} \\
+Baseline CNN & +0.8{\scriptsize\,[$-$0.1, +1.6]} & $-$3.1{\scriptsize\,[$-$3.8, $-$2.5]}$^{*}$ & +0.7{\scriptsize\,[+0.1, +1.2]}$^{*}$ \\
+ResNet-18 & +2.5{\scriptsize\,[+1.5, +3.5]}$^{*}$ & $-$4.1{\scriptsize\,[$-$5.0, $-$3.3]}$^{*}$ & +1.1{\scriptsize\,[+0.5, +1.8]}$^{*}$ \\
+ViT-B/16 & +0.2{\scriptsize\,[$-$0.4, +0.8]} & $-$0.8{\scriptsize\,[$-$1.1, $-$0.4]}$^{*}$ & $-$0.2{\scriptsize\,[$-$0.6, +0.2]} \\
+\addlinespace
+\multicolumn{4}{l}{\emph{Between architectures, standard training (points)}} \\
+ResNet-18 $-$ Baseline CNN & +8.1{\scriptsize\,[+6.9, +9.3]}$^{*}$ & +0.3{\scriptsize\,[$-$0.7, +1.3]} & +0.6{\scriptsize\,[$-$0.2, +1.3]} \\
+ViT-B/16 $-$ Baseline CNN & +16.1{\scriptsize\,[+14.7, +17.5]}$^{*}$ & +6.5{\scriptsize\,[+5.5, +7.5]}$^{*}$ & +7.8{\scriptsize\,[+6.8, +8.9]}$^{*}$ \\
+ViT-B/16 $-$ ResNet-18 & +8.0{\scriptsize\,[+7.0, +9.1]}$^{*}$ & +6.2{\scriptsize\,[+5.2, +7.1]}$^{*}$ & +7.3{\scriptsize\,[+6.4, +8.2]}$^{*}$ \\
+\addlinespace
+\multicolumn{4}{l}{\emph{Between architectures, noise augmentation (points)}} \\
+ResNet-18 $-$ Baseline CNN & +9.6{\scriptsize\,[+8.4, +10.8]}$^{*}$ & +9.2{\scriptsize\,[+8.4, +10.1]}$^{*}$ & +8.3{\scriptsize\,[+7.5, +9.2]}$^{*}$ \\
+ViT-B/16 $-$ Baseline CNN & +15.1{\scriptsize\,[+13.7, +16.5]}$^{*}$ & +14.4{\scriptsize\,[+13.3, +15.4]}$^{*}$ & +10.4{\scriptsize\,[+9.3, +11.4]}$^{*}$ \\
+ViT-B/16 $-$ ResNet-18 & +5.5{\scriptsize\,[+4.4, +6.5]}$^{*}$ & +5.1{\scriptsize\,[+4.3, +5.9]}$^{*}$ & +2.1{\scriptsize\,[+1.2, +2.9]}$^{*}$ \\
+\bottomrule
+\end{tabular}

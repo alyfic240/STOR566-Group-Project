@@ -1,0 +1,293 @@
+\begin{thebibliography}{39}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Barsoum et~al.(2016)Barsoum, Zhang, Canton~Ferrer, and
+  Zhang]{barsoum2016ferplus}
+Emad Barsoum, Cha Zhang, Cristian Canton~Ferrer, and Zhengyou Zhang.
+\newblock Training deep networks for facial expression recognition with
+  crowd-sourced label distribution.
+\newblock In \emph{Proceedings of the ACM International Conference on
+  Multimodal Interaction (ICMI)}, 2016.
+\newblock arXiv:1608.01041.
+
+\bibitem[Barz and Denzler(2020)]{barz2020purging}
+Bj{\"o}rn Barz and Joachim Denzler.
+\newblock Do we train on test data? {P}urging {CIFAR} of near-duplicates.
+\newblock \emph{Journal of Imaging}, 6\penalty0 (6):\penalty0 41, 2020.
+
+\bibitem[Bhojanapalli et~al.(2021)Bhojanapalli, Chakrabarti, Glasner, Li,
+  Unterthiner, and Veit]{bhojanapalli2021robustness}
+Srinadh Bhojanapalli, Ayan Chakrabarti, Daniel Glasner, Daliang Li, Thomas
+  Unterthiner, and Andreas Veit.
+\newblock Understanding robustness of transformers for image classification.
+\newblock In \emph{IEEE/CVF International Conference on Computer Vision
+  (ICCV)}, 2021.
+
+\bibitem[Bishop(1995)]{bishop1995noise}
+Christopher~M. Bishop.
+\newblock Training with noise is equivalent to {T}ikhonov regularization.
+\newblock \emph{Neural Computation}, 7\penalty0 (1):\penalty0 108--116, 1995.
+\newblock \doi{10.1162/neco.1995.7.1.108}.
+
+\bibitem[Bouthillier et~al.(2021)Bouthillier, Delaunay, Bronzi, Trofimov,
+  Nichyporuk, Szeto, Sepah, Raff, Madan, Voleti, Kahou, Michalski, Serdyuk,
+  Arbel, Pal, Varoquaux, and Vincent]{bouthillier2021variance}
+Xavier Bouthillier, Pierre Delaunay, Mirko Bronzi, Assya Trofimov, Brennan
+  Nichyporuk, Justin Szeto, Naz Sepah, Edward Raff, Kanika Madan, Vikram
+  Voleti, Samira~Ebrahimi Kahou, Vincent Michalski, Dmitriy Serdyuk, Tal Arbel,
+  Chris Pal, Ga{\"e}l Varoquaux, and Pascal Vincent.
+\newblock Accounting for variance in machine learning benchmarks.
+\newblock In \emph{Proceedings of Machine Learning and Systems (MLSys)}, 2021.
+
+\bibitem[Deng et~al.(2009)Deng, Dong, Socher, Li, Li, and
+  Fei-Fei]{deng2009imagenet}
+Jia Deng, Wei Dong, Richard Socher, Li-Jia Li, Kai Li, and Li~Fei-Fei.
+\newblock {ImageNet}: A large-scale hierarchical image database.
+\newblock In \emph{IEEE Conference on Computer Vision and Pattern Recognition
+  (CVPR)}, 2009.
+
+\bibitem[Dodge and Karam(2016)]{dodge2016quality}
+Samuel Dodge and Lina Karam.
+\newblock Understanding how image quality affects deep neural networks.
+\newblock In \emph{International Conference on Quality of Multimedia Experience
+  (QoMEX)}, 2016.
+
+\bibitem[Dodge and Karam(2017)]{dodge2017human}
+Samuel Dodge and Lina Karam.
+\newblock A study and comparison of human and deep learning recognition
+  performance under visual distortions.
+\newblock In \emph{International Conference on Computer Communication and
+  Networks (ICCCN)}, 2017.
+
+\bibitem[Dosovitskiy et~al.(2021)Dosovitskiy, Beyer, Kolesnikov, Weissenborn,
+  Zhai, Unterthiner, Dehghani, Minderer, Heigold, Gelly, Uszkoreit, and
+  Houlsby]{dosovitskiy2021vit}
+Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn,
+  Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg
+  Heigold, Sylvain Gelly, Jakob Uszkoreit, and Neil Houlsby.
+\newblock An image is worth 16x16 words: Transformers for image recognition at
+  scale.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2021.
+
+\bibitem[Ford et~al.(2019)Ford, Gilmer, Carlini, and
+  Cubuk]{ford2019adversarial}
+Nic Ford, Justin Gilmer, Nicolas Carlini, and Dogus Cubuk.
+\newblock Adversarial examples are a natural consequence of test error in
+  noise.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2019.
+
+\bibitem[Geirhos et~al.(2018)Geirhos, Medina~Temme, Rauber, Sch{\"u}tt, Bethge,
+  and Wichmann]{geirhos2018generalisation}
+Robert Geirhos, Carlos~R. Medina~Temme, Jonas Rauber, Heiko~H. Sch{\"u}tt,
+  Matthias Bethge, and Felix~A. Wichmann.
+\newblock Generalisation in humans and deep neural networks.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2018.
+
+\bibitem[Gontijo~Lopes et~al.(2019)Gontijo~Lopes, Yin, Poole, Gilmer, and
+  Cubuk]{lopes2019patchgaussian}
+Raphael Gontijo~Lopes, Dong Yin, Ben Poole, Justin Gilmer, and Ekin~D. Cubuk.
+\newblock Improving robustness without sacrificing accuracy with patch
+  {G}aussian augmentation.
+\newblock \emph{arXiv preprint arXiv:1906.02611}, 2019.
+
+\bibitem[Goodfellow et~al.(2013)Goodfellow, Erhan, Carrier, Courville, Mirza,
+  Hamner, Cukierski, Tang, Thaler, Lee, Zhou, Ramaiah, Feng, Li, Wang,
+  Athanasakis, Shawe-Taylor, Milakov, Park, Ionescu, Popescu, Grozea, Bergstra,
+  Xie, Romaszko, Xu, Chuang, and Bengio]{goodfellow2013challenges}
+Ian~J. Goodfellow, Dumitru Erhan, Pierre~Luc Carrier, Aaron Courville, Mehdi
+  Mirza, Ben Hamner, Will Cukierski, Yichuan Tang, David Thaler, Dong-Hyun Lee,
+  Yingbo Zhou, Chetan Ramaiah, Fangxiang Feng, Ruifan Li, Xiaojie Wang,
+  Dimitris Athanasakis, John Shawe-Taylor, Maxim Milakov, John Park, Radu
+  Ionescu, Marius Popescu, Cristian Grozea, James Bergstra, Jingjing Xie,
+  Lukasz Romaszko, Bing Xu, Zhang Chuang, and Yoshua Bengio.
+\newblock Challenges in representation learning: A report on three machine
+  learning contests.
+\newblock In \emph{Neural Information Processing (ICONIP 2013)}, pages
+  117--124, 2013.
+\newblock arXiv:1307.0414.
+
+\bibitem[Greco et~al.(2022)Greco, Strisciuglio, Vento, and
+  Vigilante]{greco2022benchmarking}
+Antonio Greco, Nicola Strisciuglio, Mario Vento, and Vincenzo Vigilante.
+\newblock Benchmarking deep networks for facial emotion recognition in the
+  wild.
+\newblock \emph{Multimedia Tools and Applications}, 2022.
+\newblock \doi{10.1007/s11042-022-12790-7}.
+
+\bibitem[Gulrajani and Lopez-Paz(2021)]{gulrajani2021search}
+Ishaan Gulrajani and David Lopez-Paz.
+\newblock In search of lost domain generalization.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2021.
+
+\bibitem[He et~al.(2016)He, Zhang, Ren, and Sun]{he2016resnet}
+Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
+\newblock Deep residual learning for image recognition.
+\newblock In \emph{IEEE Conference on Computer Vision and Pattern Recognition
+  (CVPR)}, 2016.
+
+\bibitem[Hendrycks and Dietterich(2019)]{hendrycks2019benchmarking}
+Dan Hendrycks and Thomas Dietterich.
+\newblock Benchmarking neural network robustness to common corruptions and
+  perturbations.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2019.
+
+\bibitem[Hendrycks et~al.(2019)Hendrycks, Lee, and
+  Mazeika]{hendrycks2019pretraining}
+Dan Hendrycks, Kimin Lee, and Mantas Mazeika.
+\newblock Using pre-training can improve model robustness and uncertainty.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2019.
+
+\bibitem[Khaireddin and Chen(2021)]{khaireddin2021fer}
+Yousif Khaireddin and Zhuofa Chen.
+\newblock Facial emotion recognition: State of the art performance on
+  {FER2013}.
+\newblock \emph{arXiv preprint arXiv:2105.03588}, 2021.
+
+\bibitem[Kingma and Ba(2015)]{kingma2015adam}
+Diederik~P. Kingma and Jimmy Ba.
+\newblock Adam: A method for stochastic optimization.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2015.
+
+\bibitem[Kornblith et~al.(2019)Kornblith, Shlens, and Le]{kornblith2019better}
+Simon Kornblith, Jonathon Shlens, and Quoc~V. Le.
+\newblock Do better {ImageNet} models transfer better?
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, 2019.
+
+\bibitem[L{\'e}v{\^e}que et~al.(2022)L{\'e}v{\^e}que, Villoteau, Sampaio,
+  Perreira Da~Silva, and Le~Callet]{leveque2022comparing}
+Lucie L{\'e}v{\^e}que, Fran{\c{c}}ois Villoteau, Emmanuel V.~B. Sampaio,
+  Matthieu Perreira Da~Silva, and Patrick Le~Callet.
+\newblock Comparing the robustness of humans and deep neural networks on facial
+  expression recognition.
+\newblock \emph{Electronics}, 11\penalty0 (23):\penalty0 4030, 2022.
+\newblock \doi{10.3390/electronics11234030}.
+
+\bibitem[Li(2021)]{li2021transfer}
+Bin Li.
+\newblock Facial expression recognition via transfer learning.
+\newblock \emph{EAI Endorsed Transactions on e-Learning}, 7\penalty0
+  (21):\penalty0 e4, 2021.
+\newblock \doi{10.4108/eai.8-4-2021.169180}.
+
+\bibitem[Li and Deng(2020)]{li2020deepfer}
+Shan Li and Weihong Deng.
+\newblock Deep facial expression recognition: A survey.
+\newblock \emph{IEEE Transactions on Affective Computing}, 2020.
+\newblock \doi{10.1109/TAFFC.2020.2981446}.
+
+\bibitem[Loshchilov and Hutter(2019)]{loshchilov2019adamw}
+Ilya Loshchilov and Frank Hutter.
+\newblock Decoupled weight decay regularization.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2019.
+
+\bibitem[Ma et~al.(2021)Ma, Sun, and Li]{ma2021vtff}
+Fuyan Ma, Bin Sun, and Shutao Li.
+\newblock Facial expression recognition with visual transformers and
+  attentional selective fusion.
+\newblock \emph{IEEE Transactions on Affective Computing}, 2021.
+\newblock arXiv:2103.16854.
+
+\bibitem[Mollahosseini et~al.(2019)Mollahosseini, Hasani, and
+  Mahoor]{mollahosseini2019affectnet}
+Ali Mollahosseini, Behzad Hasani, and Mohammad~H. Mahoor.
+\newblock {AffectNet}: A database for facial expression, valence, and arousal
+  computing in the wild.
+\newblock \emph{IEEE Transactions on Affective Computing}, 10\penalty0
+  (1):\penalty0 18--31, 2019.
+
+\bibitem[Naseer et~al.(2021)Naseer, Ranasinghe, Khan, Hayat, Khan, and
+  Yang]{naseer2021intriguing}
+Muzammal Naseer, Kanchana Ranasinghe, Salman Khan, Munawar Hayat, Fahad~Shahbaz
+  Khan, and Ming-Hsuan Yang.
+\newblock Intriguing properties of vision transformers.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2021.
+
+\bibitem[Neo and Chen(2023)]{neo2023ferc}
+Dexter Neo and Tsuhan Chen.
+\newblock {FER-C}: Benchmarking out-of-distribution soft calibration for facial
+  expression recognition.
+\newblock \emph{arXiv preprint arXiv:2312.11542}, 2023.
+
+\bibitem[Paul and Chen(2022)]{paul2022robust}
+Sayak Paul and Pin-Yu Chen.
+\newblock Vision transformers are robust learners.
+\newblock In \emph{AAAI Conference on Artificial Intelligence}, 2022.
+
+\bibitem[Pramerdorfer and Kampel(2016)]{pramerdorfer2016fer}
+Christopher Pramerdorfer and Martin Kampel.
+\newblock Facial expression recognition using convolutional neural networks:
+  State of the art.
+\newblock \emph{arXiv preprint arXiv:1612.02903}, 2016.
+
+\bibitem[Ram{\'i}rez-Agudelo et~al.(2025)Ram{\'i}rez-Agudelo, Gorea, Reif,
+  Bonasera, and Karl]{ramirez2025noisy}
+Oscar~H. Ram{\'i}rez-Agudelo, Nicoleta Gorea, Aliza Reif, Lorenzo Bonasera, and
+  Michael Karl.
+\newblock The role of noisy data in improving {CNN} robustness for image
+  classification.
+\newblock In \emph{Applications of Machine Learning 2025, Proceedings of SPIE},
+  volume 13606, page 136060P, 2025.
+\newblock \doi{10.1117/12.3063563}.
+
+\bibitem[Rusak et~al.(2020)Rusak, Schott, Zimmermann, Bitterwolf, Bringmann,
+  Bethge, and Brendel]{rusak2020simple}
+Evgenia Rusak, Lukas Schott, Roland~S. Zimmermann, Julian Bitterwolf, Oliver
+  Bringmann, Matthias Bethge, and Wieland Brendel.
+\newblock A simple way to make neural networks robust against diverse image
+  corruptions.
+\newblock In \emph{European Conference on Computer Vision (ECCV)}, 2020.
+\newblock \doi{10.1007/978-3-030-58580-8_4}.
+
+\bibitem[Tang(2013)]{tang2013svm}
+Yichuan Tang.
+\newblock Deep learning using linear support vector machines.
+\newblock \emph{arXiv preprint arXiv:1306.0239}, 2013.
+
+\bibitem[Taori et~al.(2020)Taori, Dave, Shankar, Carlini, Recht, and
+  Schmidt]{taori2020measuring}
+Rohan Taori, Achal Dave, Vaishaal Shankar, Nicholas Carlini, Benjamin Recht,
+  and Ludwig Schmidt.
+\newblock Measuring robustness to natural distribution shifts in image
+  classification.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2020.
+
+\bibitem[Tian(2004)]{tian2004resolution}
+Ying-Li Tian.
+\newblock Evaluation of face resolution for expression analysis.
+\newblock In \emph{IEEE Conference on Computer Vision and Pattern Recognition
+  Workshops (CVPRW)}, 2004.
+
+\bibitem[Wang et~al.(2016)Wang, Chang, Yang, Liu, and Huang]{wang2016vlr}
+Zhangyang Wang, Shiyu Chang, Yingzhen Yang, Ding Liu, and Thomas~S. Huang.
+\newblock Studying very low resolution recognition using deep networks.
+\newblock In \emph{IEEE Conference on Computer Vision and Pattern Recognition
+  (CVPR)}, 2016.
+
+\bibitem[Yin et~al.(2019)Yin, Gontijo~Lopes, Shlens, Cubuk, and
+  Gilmer]{yin2019fourier}
+Dong Yin, Raphael Gontijo~Lopes, Jonathon Shlens, Ekin~D. Cubuk, and Justin
+  Gilmer.
+\newblock A {F}ourier perspective on model robustness in computer vision.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2019.
+
+\bibitem[Zheng et~al.(2022)Zheng, Mendieta, and Chen]{zheng2022poster}
+Ce~Zheng, Matias Mendieta, and Chen Chen.
+\newblock {POSTER}: A pyramid cross-fusion transformer network for facial
+  expression recognition.
+\newblock \emph{arXiv preprint arXiv:2204.04083}, 2022.
+
+\end{thebibliography}

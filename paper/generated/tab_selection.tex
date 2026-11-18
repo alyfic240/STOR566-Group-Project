@@ -1,0 +1,9 @@
+\begin{tabular}{lp{0.36\linewidth}p{0.40\linewidth}}
+\toprule
+Model & Learning rate: score $S$ & Noise augmentation $(p, \sigma_{\max})$: score $S$ \\
+\midrule
+Baseline CNN & $3{\times}10^{-4}$: 0.417, \textbf{$1{\times}10^{-3}$: 0.458}, $3{\times}10^{-3}$: 0.446 & (0.5, 0.1): 0.498, \textbf{(0.5, 0.2): 0.515}, (0.8, 0.1): 0.507, (0.8, 0.2): 0.509 \\
+ResNet-18 & $3{\times}10^{-5}$: 0.463, $1{\times}10^{-4}$: 0.485, \textbf{$3{\times}10^{-4}$: 0.491} & (0.5, 0.1): 0.581, (0.5, 0.2): 0.595, (0.8, 0.1): 0.580, \textbf{(0.8, 0.2): 0.598} \\
+ViT-B/16 & $1{\times}10^{-5}$: 0.532, $2{\times}10^{-5}$: 0.544, \textbf{$5{\times}10^{-5}$: 0.556} & (0.5, 0.1): 0.640, (0.5, 0.2): 0.643, (0.8, 0.1): 0.640, \textbf{(0.8, 0.2): 0.646} \\
+\bottomrule
+\end{tabular}

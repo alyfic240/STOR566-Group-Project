@@ -1,0 +1,14 @@
+<section id="collapse" data-transition="fade">
+<p class="eyebrow">FAILURE ANALYSIS</p>
+<h2>Under heavy degradation the models stop looking at the face: predictions collapse onto one class</h2>
+<div class="body">
+<img src="/_blob/e7de936f01e49b5817571503f0d39273" alt="Share of test images assigned to the most-predicted class against severity, for standard and noise-augmented training" style="width:1250px;height:500px;object-fit:contain">
+<div class="col grow">
+<div class="tile"><p class="num2">71%</p><p class="lab">of all test images go to one class for standard ResNet-18 at σ = 0.2. The largest true class is 25.9%.</p></div>
+<div class="tile"><p class="num2">27%</p><p class="lab">with noise augmentation, same σ</p></div>
+<p class="note">At 8 px every model collapses. Happy survives longest; disgust and fear vanish first.</p>
+</div>
+</div>
+<div class="foot"><p class="f">Group 9 · STOR 566 · Fall 2026</p><div class="pg"></div></div>
+<aside>1:15. Accuracy near the majority rate could mean guessing. It does not. This is the share of test images put into the single most-predicted class. On clean images it is about 26 to 30 percent, like the true label distribution. Under standard training it climbs: at sigma 0.2, 61, 71 and 45 percent of all images get the same label. Which label changes with the seed, happy, sad or neutral, which is why accuracy can drop below the majority rate. With noise augmentation the models stay near the true distribution under noise, but at 8 pixels they collapse as well. Per class, happy is the most robust; disgust and fear are the first to go (backup slide).</aside>
+</section>

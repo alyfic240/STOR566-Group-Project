@@ -1,0 +1,17 @@
+\begin{tabular}{llcccc}
+\toprule
+Model & Checkpoint rule & Epochs & Original & Noise avg. & Resolution avg. \\
+\midrule
+Baseline CNN & score $S$ & 28, 22, 32 & 53.2{\scriptsize$\,\pm\,$1.3} & 37.5{\scriptsize$\,\pm\,$0.4} & 38.0{\scriptsize$\,\pm\,$0.4} \\
+ & original only & 32, 60, 58 & 53.9{\scriptsize$\,\pm\,$0.5} & 34.4{\scriptsize$\,\pm\,$3.6} & 38.7{\scriptsize$\,\pm\,$2.1} \\
+ & \emph{difference} & & +0.8{\scriptsize$\,\pm\,$1.0} & $-$3.1{\scriptsize$\,\pm\,$3.8} & +0.7{\scriptsize$\,\pm\,$1.9} \\
+\addlinespace
+ResNet-18 & score $S$ & 6, 1, 1 & 61.2{\scriptsize$\,\pm\,$1.4} & 37.8{\scriptsize$\,\pm\,$2.5} & 38.6{\scriptsize$\,\pm\,$0.9} \\
+ & original only & 6, 2, 4 & 63.7{\scriptsize$\,\pm\,$0.3} & 33.7{\scriptsize$\,\pm\,$2.8} & 39.7{\scriptsize$\,\pm\,$1.2} \\
+ & \emph{difference} & & +2.5{\scriptsize$\,\pm\,$1.6} & $-$4.1{\scriptsize$\,\pm\,$4.3} & +1.1{\scriptsize$\,\pm\,$1.6} \\
+\addlinespace
+ViT-B/16 & score $S$ & 3, 2, 4 & 69.3{\scriptsize$\,\pm\,$1.1} & 44.0{\scriptsize$\,\pm\,$0.3} & 45.8{\scriptsize$\,\pm\,$0.9} \\
+ & original only & 4, 3, 4 & 69.5{\scriptsize$\,\pm\,$0.4} & 43.2{\scriptsize$\,\pm\,$0.3} & 45.7{\scriptsize$\,\pm\,$0.4} \\
+ & \emph{difference} & & +0.2{\scriptsize$\,\pm\,$0.7} & $-$0.8{\scriptsize$\,\pm\,$0.5} & $-$0.2{\scriptsize$\,\pm\,$0.6} \\
+\bottomrule
+\end{tabular}

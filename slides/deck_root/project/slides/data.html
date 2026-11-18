@@ -1,0 +1,17 @@
+<section id="data" data-transition="fade">
+<p class="eyebrow">DATA AND DEGRADATIONS</p>
+<h2>Every model sees the same test images: FER-2013 without duplicates, two degradations, five levels each</h2>
+<div class="body">
+<div class="col" style="width:500px">
+<div class="tile"><p class="num">34,034</p><p class="lab">unique images among 35,887</p></div>
+<div class="tile"><p class="num">557</p><p class="lab">groups of identical images were shared between train, validation and test</p></div>
+<div class="tile"><p class="num2">27,418 / 3,291 / 3,268</p><p class="lab">train / validation / test after filtering</p></div>
+</div>
+<div class="col grow">
+<img src="/_blob/a5faf8f203f16219e4b2ecd2c9c123f2" alt="One validation face at the five Gaussian-noise levels (top row) and the five reduced-resolution levels (bottom row)" style="width:1116px;height:478px;object-fit:contain">
+<p class="note">Noise: add N(0, σ²) to every pixel, clip to [0, 1]. Resolution: down-sample to s × s, resize back to 48 × 48. Levels were fixed on validation images before any test run.</p>
+</div>
+</div>
+<div class="foot"><p class="f">Group 9 · STOR 566 · Fall 2026</p><div class="pg"></div></div>
+<aside>1:00. Before any modelling we audited the data: 1,516 groups of pixel-identical images, 557 of them crossing the official splits, so a model could be tested on training images. We removed conflicting-label copies and kept one copy of the rest. Two degradations, each controlled by one number, five levels each, chosen with a pilot model on validation images so they run from almost no loss to near the majority-class rate. The same degraded test images are used for every model and seed.</aside>
+</section>

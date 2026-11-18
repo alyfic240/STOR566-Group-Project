@@ -1,0 +1,18 @@
+<section id="why" data-transition="fade">
+<p class="eyebrow">MOTIVATION</p>
+<h2>Clean test accuracy is not what a deployed classifier sees</h2>
+<div class="body">
+<div class="col" style="width:620px">
+<p>Cheap cameras add noise. A face cropped from a wide shot is a few dozen pixels across.</p>
+<p>FER-2013 images are already 48 × 48 grayscale, and their labels are noisy.</p>
+<p class="note">The labels describe facial expressions. They do not establish what a person feels.</p>
+</div>
+<div class="col grow">
+<div class="card"><h3>RQ1</h3><p class="t">How well does each method classify the original images?</p></div>
+<div class="card"><h3>RQ2</h3><p class="t">How does each method perform as noise increases or resolution decreases, and how much of its original accuracy does it retain?</p></div>
+<div class="card"><h3>RQ3</h3><p class="t">Does noise augmentation help on noisy images and transfer to reduced resolution? How does it affect accuracy on the original images?</p></div>
+</div>
+</div>
+<div class="foot"><p class="f">Group 9 · STOR 566 · Fall 2026</p><div class="pg"></div></div>
+<aside>1:00. Benchmarks report accuracy on clean test images. A model that is 8 points better on clean images is not necessarily 8 points better on what a webcam produces. Read the three questions; they are unchanged from the proposal. One caveat up front: labels are expressions judged by annotators, not emotions.</aside>
+</section>

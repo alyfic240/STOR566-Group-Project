@@ -1,0 +1,14 @@
+<section id="limits" data-transition="fade">
+<p class="eyebrow">LIMITATIONS</p>
+<h2>What these results do not show</h2>
+<div class="grid3">
+<div class="card"><h3>One dataset</h3><p class="t">48 × 48 grayscale faces with noisy labels. The labels are expressions, not emotions.</p></div>
+<div class="card"><h3>Two synthetic degradations</h3><p class="t">Applied one at a time. Real images mix blur, noise, compression and pose.</p></div>
+<div class="card"><h3>Confounded models</h3><p class="t">Architecture, size and pre-training change together, so no single cause can be named.</p></div>
+<div class="card"><h3>Three seeds</h3><p class="t">The standard deviations are rough. The main effects are many of them wide.</p></div>
+<div class="card"><h3>Tuning budget</h3><p class="t">Three learning rates per model; the chosen one is at the grid edge for both pretrained models. One step beyond changed the score by less than its seed SD.</p></div>
+<div class="card"><h3>No other augmentation</h3><p class="t">No flips or crops, by design, so clean accuracy is below the best published numbers.</p></div>
+</div>
+<div class="foot"><p class="f">Group 9 · STOR 566 · Fall 2026</p><div class="pg"></div></div>
+<aside>0:45. One dataset with noisy labels. Two synthetic degradations, one at a time. The three methods differ in architecture, size and pre-training at once, so we compare methods, not causes. Three seeds. A small tuning grid whose best learning rate sits at the edge for the pretrained models; a check one step beyond the grid changed the score by less than its seed-to-seed spread. And no flips or crops, so that noise is the only augmentation; that keeps the comparison clean and costs some clean accuracy. Next steps: more corruption types and mixtures, FER+ labels, comparison at matched clean accuracy.</aside>
+</section>

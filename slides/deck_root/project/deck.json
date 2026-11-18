@@ -1,0 +1,71 @@
+{
+ "v": 5,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-17T00:06:46Z"
+ },
+ "lists": "css",
+ "format": {
+  "v": 1,
+  "shared": [
+   "project/deck.css"
+  ]
+ },
+ "title": "STOR 566 Group 9 — Facial-Expression Classification under Image Degradation (final presentation)",
+ "cover": "cover",
+ "order": [
+  "cover",
+  "why",
+  "since",
+  "data",
+  "protocol",
+  "rq1",
+  "rq2",
+  "rq3",
+  "collapse",
+  "selection",
+  "limits",
+  "takeaways",
+  "b-selection",
+  "b-ref",
+  "b-extended",
+  "b-relative",
+  "b-augcurves",
+  "b-recall",
+  "b-bootstrap",
+  "b-related"
+ ],
+ "sections": {
+  "s1": {
+   "description": "Motivation, the three research questions and what changed since the midterm.",
+   "start": "cover"
+  },
+  "s2": {
+   "description": "Data filtering, the two degradations and the pre-specified protocol.",
+   "start": "data"
+  },
+  "s3": {
+   "description": "Results for RQ1 to RQ3, the collapse analysis and the checkpoint-rule check.",
+   "start": "rq1"
+  },
+  "s4": {
+   "description": "Limitations and takeaways.",
+   "start": "limits"
+  },
+  "s5": {
+   "description": "Backup slides for questions.",
+   "start": "b-selection"
+  }
+ },
+ "faces": {
+  "space-grotesk": {
+   "family": "Space Grotesk",
+   "href": "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap"
+  },
+  "inter": {
+   "family": "Inter",
+   "href": "https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+  }
+ },
+ "designSystems": []
+}

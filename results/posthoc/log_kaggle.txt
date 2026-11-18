@@ -1,0 +1,12 @@
+23:14:07 [resnet18-std-lr0.001-seed0] ep   1 loss 1.1743 train 0.6308 val 0.5843 val-noisy 0.3124 score 0.4483 (37s) *
+23:14:41 [resnet18-std-lr0.001-seed0] ep   2 loss 0.9808 train 0.6767 val 0.6065 val-noisy 0.3172 score 0.4619 (34s) *
+23:15:15 [resnet18-std-lr0.001-seed0] ep   3 loss 0.8574 train 0.7125 val 0.6065 val-noisy 0.3613 score 0.4839 (34s) *
+23:15:49 [resnet18-std-lr0.001-seed0] ep   4 loss 0.7304 train 0.7861 val 0.6123 val-noisy 0.3045 score 0.4584 (34s)
+23:16:23 [resnet18-std-lr0.001-seed0] ep   5 loss 0.5871 train 0.8341 val 0.6153 val-noisy 0.3148 score 0.4651 (34s)
+23:16:57 [resnet18-std-lr0.001-seed0] ep   6 loss 0.4291 train 0.8687 val 0.5874 val-noisy 0.3063 score 0.4468 (34s)
+23:16:57 [posthoc] resnet18: lr 0.001 -> S = 0.4839 at epoch 3 (clean 0.6065, noisy 0.3613); grid: {'3e-05': 0.46292920085080524, '0.0001': 0.48526283804314796, '0.0003': 0.4913400182315406}, selected 0.0003; 3 min
+23:21:47 [vit_b16-std-lr0.0001-seed0] ep   1 loss 1.1015 train 0.7250 val 0.6463 val-noisy 0.4315 score 0.5389 (289s) *
+23:26:37 [vit_b16-std-lr0.0001-seed0] ep   2 loss 0.7400 train 0.8317 val 0.6700 val-noisy 0.4142 score 0.5421 (290s) *
+23:31:27 [vit_b16-std-lr0.0001-seed0] ep   3 loss 0.4093 train 0.9632 val 0.6870 val-noisy 0.4321 score 0.5596 (290s) *
+23:36:16 [vit_b16-std-lr0.0001-seed0] ep   4 loss 0.1263 train 0.9888 val 0.6861 val-noisy 0.4224 score 0.5542 (289s)
+23:36:16 [posthoc] vit_b16: lr 0.0001 -> S = 0.5596 at epoch 3 (clean 0.6870, noisy 0.4321); grid: {'1e-05': 0.5323609845031906, '2e-05': 0.5439076268611365, '5e-05': 0.5556061987237921}, selected 5e-05; 19 min

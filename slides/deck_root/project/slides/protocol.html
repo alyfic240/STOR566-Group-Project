@@ -1,0 +1,23 @@
+<section id="protocol" data-transition="fade">
+<p class="eyebrow">MODELS AND PROTOCOL</p>
+<h2>Every choice is made on validation data; the test set is used once</h2>
+<div class="stack">
+<div class="row">
+<div class="card grow"><h3>Baseline CNN</h3><p class="t">3 conv blocks, 93,575 parameters, trained from scratch</p></div>
+<div class="card grow"><h3>ResNet-18</h3><p class="t">11.2M parameters, ImageNet-1k weights, fine-tuned</p></div>
+<div class="card grow"><h3>ViT-B/16</h3><p class="t">85.8M parameters, ImageNet-21k and -1k weights, fine-tuned</p></div>
+</div>
+<div class="steps">
+<div class="step"><h3>1 · Tune</h3><p class="t">3 learning rates and 4 noise settings per model, seed 0, validation only</p></div>
+<x-shape kind="arrow-right" style="background:#9aa7b8;width:48px;height:24px;align-self:center"></x-shape>
+<div class="step"><h3>2 · Freeze</h3><p class="t">chosen settings written to a file before any test evaluation</p></div>
+<x-shape kind="arrow-right" style="background:#9aa7b8;width:48px;height:24px;align-self:center"></x-shape>
+<div class="step"><h3>3 · Train</h3><p class="t">3 seeds × 6 configurations (3 models, with and without noise)</p></div>
+<x-shape kind="arrow-right" style="background:#9aa7b8;width:48px;height:24px;align-self:center"></x-shape>
+<div class="step"><h3>4 · Test once</h3><p class="t">original images, 5 noise levels, 5 resolution levels</p></div>
+</div>
+<p class="note">Selection score S = ½ · accuracy on original + ½ · accuracy on noisy validation images. Reduced resolution is never used to choose anything, so those results measure transfer.</p>
+</div>
+<div class="foot"><p class="f">Group 9 · STOR 566 · Fall 2026</p><div class="pg"></div></div>
+<aside>1:15. Three models of increasing size: a 94 thousand parameter CNN from scratch, a pretrained ResNet-18, a pretrained ViT-B/16. Learning rate, stopping epoch and the noise-augmentation setting are all picked with one validation score, half original accuracy and half noisy accuracy. The chosen settings were frozen to a file before we looked at any test number. Reduced resolution never enters a decision. We come back on slide 10 to what this selection rule cost us.</aside>
+</section>

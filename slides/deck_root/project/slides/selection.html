@@ -1,0 +1,14 @@
+<section id="selection" data-transition="fade">
+<p class="eyebrow">PROTOCOL CHECK</p>
+<h2>The checkpoint rule matters: our pre-specified score stops standard models early</h2>
+<div class="body">
+<img src="/_blob/c8a4052716b8c6b46e96dc67a9769b3a" alt="Validation accuracy per epoch for ResNet-18 under standard training, on original and noisy validation images, with the selected checkpoints marked" style="width:888px;height:520px;object-fit:contain">
+<div class="col grow">
+<p class="t" style="font-size:28px;line-height:1.35">Half of our score is accuracy on noisy validation images. For a model trained without noise that half is erratic and peaks early.</p>
+<div class="card"><h3>ResNet-18, standard training</h3><p class="t">Checkpoints chosen at epochs 6, 1, 1, while accuracy on original validation images was still rising in two of three runs</p></div>
+<div class="card"><h3>Checked against the usual rule</h3><p class="t">Checkpoint picked on original validation only: ResNet-18 gains 2.5 points on original images and loses 4.1 under noise. Our conclusions hold.</p></div>
+</div>
+</div>
+<div class="foot"><p class="f">Group 9 · STOR 566 · Fall 2026</p><div class="pg"></div></div>
+<aside>1:00. We fixed the selection rule in advance, and it has a side effect. For models trained without noise, the noisy half of the score jumps around and is often highest after the first epoch, so the rule stopped two of three ResNet-18 runs at epoch 1. We checked what that costs with reference runs that pick the checkpoint on original validation accuracy only: ResNet-18 gains 2.5 points on original images and loses 4.1 under noise. The conclusions hold either way: ResNet-18 is still no better than the CNN under noise, and noise augmentation still adds 23.1 points. For ViT-B/16 the two rules differ by less than a point; the full table is on a backup slide. The lesson for anyone comparing robustness: say how checkpoints were picked.</aside>
+</section>

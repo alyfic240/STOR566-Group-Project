@@ -1,0 +1,18 @@
+22:05:39 [vit_b16-ref-lr5e-05-seed0] ep   1 loss 1.1144 train 0.7253 val 0.6512 val-noisy 0.4184 score 0.6512 (280s) *
+22:10:29 [vit_b16-ref-lr5e-05-seed0] ep   2 loss 0.7347 train 0.8274 val 0.6806 val-noisy 0.4257 score 0.6806 (290s) *
+22:15:19 [vit_b16-ref-lr5e-05-seed0] ep   3 loss 0.4471 train 0.9404 val 0.6834 val-noisy 0.4230 score 0.6834 (290s) *
+22:20:09 [vit_b16-ref-lr5e-05-seed0] ep   4 loss 0.2069 train 0.9736 val 0.6858 val-noisy 0.4160 score 0.6858 (290s) *
+22:25:03 FINAL vit_b16-ref-lr5e-05-seed0 best_epoch 4 test acc 0.6995 macro-F1 0.6572
+22:25:03 [vit_b16] reference run seed 0 done; 24 min
+22:29:54 [vit_b16-ref-lr5e-05-seed1] ep   1 loss 1.1266 train 0.7265 val 0.6521 val-noisy 0.4458 score 0.6521 (290s) *
+22:34:43 [vit_b16-ref-lr5e-05-seed1] ep   2 loss 0.7417 train 0.8295 val 0.6761 val-noisy 0.4540 score 0.6761 (289s) *
+22:39:33 [vit_b16-ref-lr5e-05-seed1] ep   3 loss 0.4545 train 0.9386 val 0.6806 val-noisy 0.4245 score 0.6806 (290s) *
+22:44:22 [vit_b16-ref-lr5e-05-seed1] ep   4 loss 0.2064 train 0.9736 val 0.6803 val-noisy 0.4251 score 0.6803 (289s)
+22:49:15 FINAL vit_b16-ref-lr5e-05-seed1 best_epoch 3 test acc 0.6928 macro-F1 0.6524
+22:49:15 [vit_b16] reference run seed 1 done; 24 min
+22:54:06 [vit_b16-ref-lr5e-05-seed2] ep   1 loss 1.1274 train 0.7040 val 0.6442 val-noisy 0.4403 score 0.6442 (290s) *
+22:58:56 [vit_b16-ref-lr5e-05-seed2] ep   2 loss 0.7420 train 0.8338 val 0.6825 val-noisy 0.4306 score 0.6825 (290s) *
+23:03:46 [vit_b16-ref-lr5e-05-seed2] ep   3 loss 0.4573 train 0.9325 val 0.6828 val-noisy 0.4297 score 0.6828 (290s) *
+23:08:35 [vit_b16-ref-lr5e-05-seed2] ep   4 loss 0.2202 train 0.9687 val 0.6931 val-noisy 0.4321 score 0.6931 (290s) *
+23:13:29 FINAL vit_b16-ref-lr5e-05-seed2 best_epoch 4 test acc 0.6919 macro-F1 0.6629
+23:13:29 [vit_b16] reference run seed 2 done; 24 min

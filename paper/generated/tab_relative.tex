@@ -1,0 +1,16 @@
+\begin{tabular}{llcccccccccccc}
+\toprule
+ & & \multicolumn{6}{c}{Gaussian noise $\sigma$} & \multicolumn{6}{c}{Intermediate size $s$} \\
+\cmidrule(lr){3-8}\cmidrule(lr){9-14}
+Model & Training & 0.025 & 0.05 & 0.1 & 0.15 & 0.2 & $<$90\% at & 40 & 32 & 24 & 16 & 8 & $<$90\% at \\
+\midrule
+Baseline CNN & standard & 96 & 89 & 68 & 53 & 47 & $\sigma{=}0.05$ & 91 & 85 & 73 & 65 & 44 & 32\,px \\
+ & noise aug. & 99 & 97 & 90 & 83 & 75 & $\sigma{=}0.15$ & 93 & 88 & 77 & 67 & 43 & 32\,px \\
+\addlinespace
+ResNet-18 & standard & 90 & 76 & 54 & 46 & 43 & $\sigma{=}0.05$ & 89 & 79 & 64 & 49 & 34 & 40\,px \\
+ & noise aug. & 99 & 96 & 92 & 85 & 78 & $\sigma{=}0.15$ & 96 & 91 & 82 & 69 & 40 & 24\,px \\
+\addlinespace
+ViT-B/16 & standard & 94 & 84 & 61 & 45 & 33 & $\sigma{=}0.05$ & 91 & 85 & 72 & 57 & 25 & 32\,px \\
+ & noise aug. & 99 & 98 & 91 & 86 & 78 & $\sigma{=}0.15$ & 95 & 90 & 81 & 70 & 28 & 24\,px \\
+\bottomrule
+\end{tabular}

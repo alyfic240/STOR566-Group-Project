@@ -1,0 +1,19 @@
+{
+ "n_rows": 35887,
+ "n_unique_images": 34034,
+ "duplicate_groups": 1516,
+ "cross_split_duplicate_groups": 557,
+ "conflicting_label_groups": 57,
+ "rows_removed_conflicting": 160,
+ "rows_removed_redundant": 1750,
+ "raw_sizes": {
+  "train": 28709,
+  "val": 3589,
+  "test": 3589
+ },
+ "final_sizes": {
+  "train": 27418,
+  "val": 3291,
+  "test": 3268
+ }
+}

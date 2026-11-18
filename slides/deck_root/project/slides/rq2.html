@@ -1,0 +1,14 @@
+<section id="rq2" data-transition="fade">
+<p class="eyebrow">RQ2 · STANDARD TRAINING</p>
+<h2>Under standard training, that lead shrinks or disappears as images degrade</h2>
+<div class="body">
+<img src="/_blob/9455ca0c58cdd46433e621714d12993d" alt="Test accuracy against severity for Gaussian noise and reduced resolution, standard training, three models; all curves fall to the majority-class rate" style="width:1250px;height:500px;object-fit:contain">
+<div class="col grow">
+<div class="tile"><p class="num2">+8.1 → +0.3</p><p class="lab">ResNet-18 lead over the CNN, in points: original images → average of 5 noise levels</p></div>
+<div class="tile"><p class="num2">+16.1 → +6.5</p><p class="lab">ViT-B/16 lead over the CNN</p></div>
+<p class="note">At σ = 0.2 and at 8 px every model is at or below the 25.9% majority-class rate.</p>
+</div>
+</div>
+<div class="foot"><p class="f">Group 9 · STOR 566 · Fall 2026</p><div class="pg"></div></div>
+<aside>1:30. Standard training, no noise seen in training. All three curves fall fast: every model is below 90 percent of its own clean accuracy by sigma 0.05. At sigma 0.1 the models keep 68, 54 and 61 percent of their clean accuracy. Averaged over the five noise levels ResNet-18 beats the small CNN by 0.3 points instead of 8.1; that difference is inside test-set sampling error. ViT keeps part of its lead, 6.5 points instead of 16.1. At the strongest levels the ranking is gone, and at 8 pixels the best clean model is the worst. Pre-training bought clean accuracy. It did not buy robustness. Same pattern Hendrycks and Dietterich reported on ImageNet-C.</aside>
+</section>

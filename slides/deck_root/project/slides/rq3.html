@@ -1,0 +1,14 @@
+<section id="rq3" data-transition="fade">
+<p class="eyebrow">RQ3 · NOISE AUGMENTATION</p>
+<h2>Noise augmentation costs little on clean images and transfers to low resolution for pretrained models</h2>
+<div class="body">
+<img src="/_blob/8a89bb47aa64842e069309d9a76abf57" alt="Dumbbell chart: test accuracy with standard training and with noise augmentation, for original images, the noise average and the resolution average, three models" style="width:820px;height:590px;object-fit:contain">
+<div class="col grow">
+<div class="card"><h3>Original images</h3><p class="t">+0.3, +1.8 and −0.7 points (CNN, ResNet-18, ViT-B/16): little or no cost</p></div>
+<div class="card"><h3>Gaussian noise, seen in training</h3><p class="t">+10.0, +18.9 and +17.9 points on average, and up to +30.5 at σ = 0.2</p></div>
+<div class="card"><h3>Reduced resolution, never seen</h3><p class="t">+9.2 for ResNet-18 and +3.9 for ViT-B/16, but only +1.4 for the small CNN</p></div>
+</div>
+</div>
+<div class="foot"><p class="f">Group 9 · STOR 566 · Fall 2026</p><div class="pg"></div></div>
+<aside>1:30. Each training image gets Gaussian noise with probability p and a random strength up to sigma-max; p and sigma-max were chosen on validation. On original images the change is small in both directions. On noisy images the gain is large and grows with severity. The interesting part is reduced resolution: it was never used in training or in any choice we made, so this is transfer, not tuning. It transfers for the pretrained models, +9.2 and +3.9 points on average, and hardly at all for the small CNN. That fits the frequency argument of Yin and co-authors: noise training pushes a model away from fine detail, and down-sampling removes exactly that detail. Why the small CNN gains so little we did not test.</aside>
+</section>

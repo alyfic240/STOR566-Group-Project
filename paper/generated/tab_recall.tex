@@ -1,0 +1,14 @@
+\begin{tabular}{llccccccc}
+\toprule
+Model & Training & Angry & Disgust & Fear & Happy & Sad & Surprise & Neutral \\
+\midrule
+Baseline CNN & standard & 41.0 & 10.5 & 31.0 & 81.5 & 42.4 & 61.2 & 49.2 \\
+ & noise aug. & 34.2 & 9.6 & 30.3 & 77.8 & 50.0 & 58.9 & 55.7 \\
+\addlinespace
+ResNet-18 & standard & 52.7 & 18.4 & 39.9 & 90.9 & 48.9 & 64.7 & 55.6 \\
+ & noise aug. & 51.3 & 29.8 & 37.3 & 86.6 & 52.8 & 68.4 & 68.7 \\
+\addlinespace
+ViT-B/16 & standard & 62.7 & 53.5 & 47.6 & 91.1 & 56.3 & 76.9 & 70.5 \\
+ & noise aug. & 60.3 & 40.4 & 46.9 & 91.0 & 57.2 & 72.8 & 70.9 \\
+\bottomrule
+\end{tabular}
