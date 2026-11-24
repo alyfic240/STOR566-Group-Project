@@ -8,8 +8,7 @@ crops are noisy and small. We compare three models on FER-2013 (a small CNN trai
 ImageNet-pretrained ResNet-18 and an ImageNet-pretrained ViT-B/16), test them under Gaussian noise and reduced
 resolution at five severity levels each, and ask whether adding Gaussian noise during training helps.
 
-**Status (Nov 18, 2026).** All experiments are finished. `paper/main.pdf` is a draft that the group is still
-reviewing (the Acknowledgments section is not written yet). The presentation is on Dec 1.
+**Status (Nov 24, 2026).** All experiments are finished and `paper/main.pdf` is the final report. The presentation is on Dec 1.
 
 ## Results
 
@@ -111,5 +110,3 @@ The final pipeline builds on them: it reproduces the same split sizes and the sa
 ViT-B/16 training recipe (AdamW, weight decay 0.01, warm-up and linear decay, batch 32) follows the ViT notebook.
 Numbers differ from those notebooks because the final protocol uses one set of severity levels for all models,
 selects everything on validation data, and trains three seeds per configuration.
-
-Contributions will be stated in the paper's Acknowledgments.
