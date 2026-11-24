@@ -37,243 +37,249 @@
 \maketitle
 
 \begin{abstract}
-Facial-expression classifiers are usually compared on clean test images, yet faces recorded by inexpensive cameras
-or cropped from a distance are noisy and small. Using FER-2013, we compare a 94K-parameter CNN trained from scratch
-with an ImageNet-pretrained ResNet-18 and ViT-B/16, test all three under Gaussian noise and reduced resolution at
-five severity levels each, and ask whether adding Gaussian noise during training helps. Learning rates, stopping
-epochs and augmentation settings are chosen on validation images only, every configuration is trained with three
-seeds, and the duplicate-filtered test set is evaluated once. On original images accuracy rises from
-\num{acc@cnn@std@clean}\% (CNN) to \num{acc@resnet18@std@clean}\% (ResNet-18) and \num{acc@vit_b16@std@clean}\%
-(ViT-B/16). Under standard training this ranking does not survive degradation: averaged over the noise levels,
-ResNet-18 is only \num{archdiff@resnet18@cnn@std@navg} points better than the CNN, and at the strongest levels all
-three models fall to or below the majority-class rate because their predictions collapse onto a single class.
-Noise augmentation changes accuracy on original images by at most two points, recovers \num{delta@cnn@navg} to
-\num{delta@resnet18@navg} points under noise, and transfers to reduced resolution, which was never seen in
-training, for the pretrained models (\num{delta@resnet18@ravg} and \num{delta@vit_b16@ravg} points) but hardly
-for the small CNN (\num{delta@cnn@ravg}).
+Most facial-expression classifiers are evaluated on clean benchmark images, even though faces captured by cheap
+cameras in low light or cropped from wide-angle shots are frequently noisy and small. Using FER-2013, we compare
+three models of very different scale: a 94K-parameter CNN trained from scratch, an ImageNet-pretrained ResNet-18,
+and an ImageNet-pretrained ViT-B/16. We evaluate each model across five severity levels of Gaussian noise and five
+levels of reduced resolution, and test whether training with Gaussian noise helps protect against both corruptions.
+All learning rates, early-stopping checkpoints, and augmentation settings are chosen on validation data alone; every
+configuration is trained across three seeds and evaluated once on a duplicate-filtered test set. On the original
+images, accuracy improves substantially with model size and pretraining, rising from \num{acc@cnn@std@clean}\% for
+the CNN to \num{acc@resnet18@std@clean}\% for ResNet-18 and \num{acc@vit_b16@std@clean}\% for ViT-B/16. Under
+standard training, that hierarchy breaks down quickly once images are degraded: averaged across the five noise
+levels, ResNet-18 edges out the small CNN by only \num{archdiff@resnet18@cnn@std@navg} percentage points, and at the
+severest levels all three models fall to or below the majority-class rate as their predictions collapse onto a single
+class. Adding Gaussian noise during training changes clean accuracy by less than two points, produces large average
+gains under noise (\num{delta@cnn@navg} to \num{delta@resnet18@navg} points), and transfers to reduced resolution
+(which never appears in training or model selection) for both pretrained networks (\num{delta@resnet18@ravg} and
+\num{delta@vit_b16@ravg} points), while offering little benefit to the small CNN (\num{delta@cnn@ravg} points).
 \end{abstract}
 
 \section{Introduction}
 \label{sec:intro}
 
-Facial-expression classifiers are almost always compared on the clean test images of a benchmark.
-The images a deployed system receives are different: a face recorded by an inexpensive camera in poor light is noisy,
-and a face cropped from a wide shot may cover only a few dozen pixels.
-For object recognition it is well documented that accuracy on clean images says little about accuracy on corrupted
-ones~\cite{dodge2016quality,hendrycks2019benchmarking}, and that a model which is more accurate on clean images is
-not necessarily more robust in relative terms~\cite{hendrycks2019benchmarking}.
-We ask how this plays out for facial-expression recognition on FER-2013~\cite{goodfellow2013challenges}, a dataset of
-$48{\times}48$ grayscale faces whose images are already small and whose labels are known to be
-noisy~\cite{barsoum2016ferplus}.
+Facial-expression recognition models are almost always benchmarked on clean test images. In practice, however,
+deployed systems rarely see studio-quality crops: a face captured on a budget webcam in dim lighting comes with
+noticeable sensor noise, and a face cropped from a wide shot may be only a few dozen pixels across. In general
+object recognition, strong performance on clean images is known to be a poor predictor of performance on corrupted
+inputs~\cite{dodge2016quality,hendrycks2019benchmarking}, and models that lead on clean benchmarks are not
+necessarily more robust in relative terms~\cite{hendrycks2019benchmarking}. Here we examine how these patterns hold
+up for facial-expression classification on FER-2013~\cite{goodfellow2013challenges}, a widely used benchmark of
+$48{\times}48$ grayscale faces where images are already small and crowd-sourced labels carry substantial
+noise~\cite{barsoum2016ferplus}.
 
-We compare three models of increasing capacity: a small convolutional network (CNN) trained from scratch, an
-ImageNet-pretrained ResNet-18~\cite{he2016resnet}, and an ImageNet-pretrained ViT-B/16~\cite{dosovitskiy2021vit}.
-Each is evaluated on the original test images and on copies corrupted by Gaussian noise or by reduced resolution at
-five severity levels, with and without Gaussian-noise augmentation during training.
-Our questions are:
+We compare three models spanning different scales and training regimes: a lightweight convolutional network (CNN)
+trained from scratch, an ImageNet-pretrained ResNet-18~\cite{he2016resnet}, and an ImageNet-pretrained
+ViT-B/16~\cite{dosovitskiy2021vit}. Each model is trained both normally and with Gaussian-noise augmentation, then
+evaluated on the original test images as well as versions corrupted by five levels of Gaussian noise or five levels
+of reduced resolution. Our experiments are organized around three questions:
 \begin{description}
-  \item[RQ1] How well does each method classify the original images?
-  \item[RQ2] How does each method perform as noise increases or resolution decreases, and how much of its original
-  accuracy does it retain?
-  \item[RQ3] Does noise augmentation help on noisy images and transfer to reduced resolution, and how does it affect
-  accuracy on the original images?
+  \item[RQ1] How accurately does each model classify the original, uncorrupted images?
+  \item[RQ2] How quickly does performance drop as noise increases or resolution shrinks, and what share of clean
+  accuracy does each model retain?
+  \item[RQ3] How much does Gaussian-noise augmentation help on noisy inputs, does it transfer to unseen resolution
+  loss, and what does it cost on clean images?
 \end{description}
-The labels describe facial expressions as judged by annotators; they do not establish a person's internal emotional
-state, and nothing in this report should be read as a claim about emotions.
+One clarification on scope is worth stating up front: the labels in FER-2013 record how annotators categorized
+visible facial expressions in still frames, not a person's underlying emotional state. We treat this strictly as an
+expression-classification task and make no claims about inferring emotions.
 
-\paragraph{Findings.}
-(1) On original images, larger pretrained models are more accurate (\num{acc@cnn@std@clean}\%,
-\num{acc@resnet18@std@clean}\% and \num{acc@vit_b16@std@clean}\%).
-(2) Under standard training that advantage shrinks or vanishes as images degrade, and at the strongest levels
-every model falls to the majority-class rate because its predictions collapse onto one class.
-(3) Noise augmentation costs little on original images, recovers \num{delta@cnn@navg} to \num{delta@resnet18@navg}
-points under noise, and transfers to reduced resolution for the pretrained models but barely for the small CNN.
-(4) The rule used to pick checkpoints changes the numbers for standard training and should be reported.
+Across our experiments, four main takeaways stand out. First, on the original images, scale and pretraining pay off
+clearly, lifting accuracy from \num{acc@cnn@std@clean}\% (CNN) to \num{acc@resnet18@std@clean}\% (ResNet-18) and
+\num{acc@vit_b16@std@clean}\% (ViT-B/16). Second, under standard training, much of that advantage disappears as
+images degrade; at the harshest levels, every model falls to or below the majority-class rate because it begins
+predicting a single label for most inputs. Third, adding Gaussian noise during training barely moves clean accuracy,
+delivers large average gains under noise (\num{delta@cnn@navg} to \num{delta@resnet18@navg} percentage points), and
+carries over to reduced resolution for both pretrained models, though barely at all for the small CNN. Finally, the
+rule used to pick early-stopping checkpoints noticeably shifts standard-training results for the smaller models,
+making it an important detail to report explicitly.
 
-\paragraph{Changes since the proposal.}
-The proposal planned two models. After the midterm review we added ViT-B/16 as a stronger model and ran it under
-the same protocol as the other two. We also added one set of reference runs (Section~\ref{sec:ref}) after noticing that
-the checkpoint-selection rule of the proposal interacts with the comparison between training variants, and one
-learning-rate check after the protocol was complete (Appendix~\ref{app:selection}).
-All other design decisions follow the proposal.
+Compared with our original project proposal, we made three targeted additions while keeping the rest of the protocol
+unchanged. Following midterm feedback, we added ViT-B/16 as a stronger architecture and ran it under the exact same
+selection and evaluation pipeline. We also ran a set of reference checkpoints (Section~\ref{sec:ref}) once we noticed
+that our validation selection rule interacted with the comparison between standard and augmented training, and we
+performed a single post-hoc learning-rate check after all main runs were finished (Appendix~\ref{app:selection}).
 
-\section{Related work}
+\section{Related Work}
 \label{sec:related}
 
-\paragraph{FER-2013 and expression classifiers.}
-FER-2013 was assembled for a 2013 representation-learning contest from web image searches and contains 35,887
-face crops in seven classes; its organisers estimated human accuracy at $65\pm5\%$, and the winning entry, a CNN
-trained with an SVM loss, reached 71.2\%~\cite{goodfellow2013challenges,tang2013svm}.
-Later work pushed single-network accuracy to about 73\% with a carefully tuned VGG-style
-network~\cite{khaireddin2021fer} and analysed which architectural choices matter~\cite{pramerdorfer2016fer}.
-Because crowd-sourced expression labels are noisy, the same images were later re-annotated by ten annotators
-each~\cite{barsoum2016ferplus}; label noise bounds what any model can reach on the original labels.
-Surveys of deep expression recognition~\cite{li2020deepfer} describe the shift toward larger in-the-wild
-datasets~\cite{mollahosseini2019affectnet} and, more recently, transformer-based models~\cite{ma2021vtff,zheng2022poster}.
-Transfer learning from ImageNet~\cite{deng2009imagenet} is common in this literature~\cite{li2021transfer}, in line with
-the general finding that better ImageNet models transfer better~\cite{kornblith2019better}.
+\paragraph{FER-2013 and expression recognition.}
+FER-2013 was created for a 2013 representation-learning competition from web search images and contains 35,887 face
+crops across seven expression classes~\cite{goodfellow2013challenges}. The organizers estimated human accuracy on the
+benchmark at $65\pm5\%$, and the winning entry combined a CNN with a linear SVM objective to reach
+71.2\%~\cite{goodfellow2013challenges,tang2013svm}. Follow-up work examined which architectural decisions matter most
+on FER-2013~\cite{pramerdorfer2016fer} and pushed single-network performance to roughly 73\% with a carefully tuned
+VGG-style architecture~\cite{khaireddin2021fer}. At the same time, because the original crowd-sourced labels contain
+noticeable errors, \citet{barsoum2016ferplus} re-annotated the dataset with ten raters per image (FER+); that
+underlying label noise puts a practical ceiling on what any classifier can achieve against the original labels.
+Broader surveys of deep facial-expression recognition~\cite{li2020deepfer} trace the field's move toward larger
+in-the-wild collections such as AffectNet~\cite{mollahosseini2019affectnet} and, more recently, vision-transformer
+architectures~\cite{ma2021vtff,zheng2022poster}. Fine-tuning models pretrained on ImageNet~\cite{deng2009imagenet}
+has become a standard strategy for expression recognition~\cite{li2021transfer}, matching the broader observation that
+stronger ImageNet backbones generally transfer better to downstream tasks~\cite{kornblith2019better}.
 
 \paragraph{Robustness to common corruptions.}
-Classifiers trained on clean images degrade quickly under noise and blur~\cite{dodge2016quality,vasiljevic2016blur}, and
-\citet{hendrycks2019benchmarking} turned such tests into the ImageNet-C benchmark, observing that relative
-robustness changed little from AlexNet to ResNets even though clean accuracy improved a lot.
-Low resolution is a corruption of practical interest for faces~\cite{tian2004resolution,wang2016vlr}.
-Under blur and noise, networks fall well short of human accuracy~\cite{dodge2017human}, and networks trained on
-one distortion can exceed humans on that distortion yet fail on others~\cite{geirhos2018generalisation}, so a gain
-measured on the training corruption should not be assumed to carry over.
-Pre-training has been reported to improve robustness to adversarial inputs and label noise and to give better
-uncertainty estimates~\cite{hendrycks2019pretraining}, and vision transformers pre-trained on enough data have been
-found at least as robust as comparable ResNets~\cite{bhojanapalli2021robustness,paul2022robust,naseer2021intriguing}.
-Whether robustness gains exceed what the higher clean accuracy already predicts is a separate
-question~\cite{taori2020measuring}, which is why we report relative as well as absolute accuracy.
+Neural networks trained solely on clean images tend to break down rapidly under additive noise and
+blur~\cite{dodge2016quality,vasiljevic2016blur}. \citet{hendrycks2019benchmarking} formalized this evaluation with
+the ImageNet-C benchmark and observed that, even as clean accuracy climbed steeply from AlexNet to modern ResNets,
+relative corruption robustness barely budged. Low spatial resolution is a particularly realistic concern for face
+analysis, where distant subjects often occupy only a small patch of the frame~\cite{tian2004resolution,wang2016vlr}.
+Comparisons with human observers show that deep networks still trail human accuracy substantially under noise and
+blur~\cite{dodge2017human}. Moreover, training directly on one distortion can push a network past human performance
+on that specific distortion while leaving it brittle on others~\cite{geirhos2018generalisation}, so improvements on a
+training corruption cannot automatically be assumed to generalize. On the architectural side, pretraining has been
+shown to improve robustness to label noise and adversarial perturbations while producing better-calibrated
+uncertainty estimates~\cite{hendrycks2019pretraining}, and sufficiently pretrained vision transformers are often at
+least as robust as comparable ResNets~\cite{bhojanapalli2021robustness,paul2022robust,naseer2021intriguing}. Still,
+disentangling genuine robustness gains from improvements that simply follow from higher clean accuracy requires
+care~\cite{taori2020measuring}, which is why we track both absolute accuracy and relative retention.
 
 \paragraph{Noise augmentation.}
-Training with input noise is a classical regulariser~\cite{bishop1995noise}.
-\citet{rusak2020simple} found that well-tuned Gaussian-noise augmentation is a strong baseline that also improves
-accuracy on corruptions never seen in training, and \citet{ramirez2025noisy} report similar benefits for a ResNet-18
-on CIFAR-10.
-\citet{yin2019fourier} explain when such transfer should be expected: Gaussian augmentation helps against corruptions
-that disturb high spatial frequencies and can hurt against low-frequency ones.
-It can also cost clean accuracy~\cite{lopes2019patchgaussian,ford2019adversarial}.
-Reducing resolution removes high-frequency content, so by this argument some transfer from noise augmentation to
-reduced resolution is plausible; RQ3 tests it.
+Injecting random noise into training inputs is a classic form of regularization~\cite{bishop1995noise}. More
+recently, \citet{rusak2020simple} showed that properly tuned Gaussian-noise augmentation is a surprisingly strong
+baseline that also improves performance on corruptions absent from training, and \citet{ramirez2025noisy} reported
+similar robustness gains for ResNet-18 on CIFAR-10. From a frequency perspective, \citet{yin2019fourier} showed that
+Gaussian-noise training shifts models away from fragile high-frequency cues: it tends to help against corruptions
+that disrupt high spatial frequencies, though it can hurt on low-frequency distortions and sometimes trims clean
+accuracy~\cite{lopes2019patchgaussian,ford2019adversarial}. Because downsampling strips away high-frequency detail,
+this perspective suggests that training with Gaussian noise might carry over to reduced resolution as well, a
+hypothesis we test directly in RQ3.
 
-\paragraph{Robustness of expression classifiers.}
-Closest to our study, \citet{greco2022benchmarking} built corrupted versions of the RAF-DB test set and found large
-error increases for state-of-the-art models, partly mitigated by stronger augmentation and anti-aliased
-down-sampling; \citet{leveque2022comparing} compared humans and networks on distorted faces; and
-\citet{neo2023ferc} studied calibration under corruptions.
-These studies use larger images and models selected for clean accuracy.
-We instead work at the native $48{\times}48$ resolution of FER-2013, include a small from-scratch model, and fix the
-selection protocol in advance.
+\paragraph{Robustness in facial-expression recognition.}
+A few recent studies have evaluated expression classifiers under visual degradation. Most closely related to our
+work, \citet{greco2022benchmarking} constructed corrupted versions of the RAF-DB test set and observed steep error
+increases for strong modern models, which were only partially eased by heavier augmentation and antialiased
+downsampling. \citet{leveque2022comparing} compared human and neural-network robustness on distorted face images,
+while \citet{neo2023ferc} examined out-of-distribution calibration under corruptions. Those studies generally work
+with higher-resolution inputs and models tuned for clean accuracy. Our study complements them by staying at the
+native $48{\times}48$ resolution of FER-2013, including a compact CNN trained from scratch alongside pretrained
+models, and locking in the validation-based selection protocol ahead of time.
 
-\paragraph{Evaluation practice.}
-Exact and near duplicates shared between training and test data inflate test accuracy~\cite{barz2020purging}; we
-therefore filter duplicates before any modelling.
-Conclusions of robustness comparisons depend on how models are selected~\cite{gulrajani2021search} and on
-seed-to-seed variance~\cite{bouthillier2021variance}; we fix the selection rule in advance, report its effect, and
-train every configuration with three seeds.
+\paragraph{Evaluation methodology.}
+Finally, two methodological lessons from the broader benchmarking literature shape our experimental design. First,
+exact and near duplicates leaking across training and test splits artificially inflate test
+scores~\cite{barz2020purging}, so we deduplicate FER-2013 before training any model. Second, conclusions about
+robustness can hinge on model-selection rules~\cite{gulrajani2021search} and run-to-run
+randomness~\cite{bouthillier2021variance}; accordingly, we fix our selection criterion before touching the test set,
+explicitly measure how that criterion affects standard training, and average every configuration over three random
+seeds.
 
-\section{Data and degradations}
+\section{Data and Degradations}
 \label{sec:data}
 
 \paragraph{FER-2013 and duplicate filtering.}
-We use the original FER-2013 file with its three official subsets (Training, PublicTest, PrivateTest) as training,
-validation and test sets.
-An audit of the \num{audit@n_rows} images found \num{audit@duplicate_groups} groups of pixel-identical images,
-\num{audit@cross_split_duplicate_groups} of them spanning more than one subset, so that a model could be tested on
-images it was trained on.
-Before any modelling we removed every copy of an image whose duplicates carry conflicting labels
-(\num{audit@conflicting_label_groups} groups, \num{audit@rows_removed_conflicting} images) and kept a single copy of
-the remaining duplicates, giving priority to the training set, then validation, then test
-(\num{audit@rows_removed_redundant} images removed).
-This leaves 27,418 training, 3,291 validation and \num{ntest} test images.
-The class distribution is unequal: \emph{happy} is the largest class (\num{majority}\% of the test set) and
-\emph{disgust} the smallest (1.2\%).
-Because of the filtering, our numbers are not directly comparable to results on the unfiltered benchmark.
+We work with the original FER-2013 dataset and follow its three official splits (Training, PublicTest, and
+PrivateTest) as our training, validation, and test sets. Before training anything, we ran a pixel-level audit across
+all \num{audit@n_rows} rows and uncovered \num{audit@duplicate_groups} groups of identical images, including
+\num{audit@cross_split_duplicate_groups} groups that appeared in more than one split. Left untouched, those
+duplicates would allow a model to be tested on images it had already seen during training. To prevent leakage, we
+discarded all copies of any duplicate group that carried conflicting class labels
+(\num{audit@conflicting_label_groups} groups, removing \num{audit@rows_removed_conflicting} images) and retained a
+single copy of each remaining duplicate group, prioritizing the training split first, then validation, and finally
+test (\num{audit@rows_removed_redundant} redundant images removed). After filtering, we are left with 27,418
+training, 3,291 validation, and \num{ntest} test images. Class counts remain noticeably skewed: \emph{happy} accounts
+for \num{majority}\% of the test set, whereas \emph{disgust} makes up just 1.2\%. Because we purge cross-split
+duplicates and label conflicts, our test accuracies are not directly interchangeable with published scores on the
+unfiltered benchmark.
 
 \paragraph{Degradations.}
-Pixels are scaled to $[0,1]$ and the same degraded images are generated once for all models, before any
-model-specific preprocessing.
-\emph{Gaussian noise} adds an independent draw $\varepsilon\sim\mathcal{N}(0,\sigma^2)$ to every pixel and clips the
-result to $[0,1]$.
-\emph{Reduced resolution} down-samples the image to $s\times s$ pixels with antialiased bilinear interpolation and
-resizes it back to $48\times48$ with bilinear interpolation.
-The two degradations are tested separately.
-Test noise uses fixed seeds that are independent of any training noise, so every model and seed sees identical
-test images.
+All images are first rescaled to $[0,1]$, and degraded test copies are generated once up front before any
+architecture-specific preprocessing. Under \emph{Gaussian noise}, we add independent noise
+$\varepsilon\sim\mathcal{N}(0,\sigma^2)$ to every pixel and clip the result back to $[0,1]$. Under \emph{reduced
+resolution}, we downsample the $48{\times}48$ image to $s{\times}s$ pixels using antialiased bilinear interpolation
+and then upsample it back to $48{\times}48$ with bilinear interpolation. The two corruptions are evaluated separately
+rather than combined. For test-time Gaussian noise, we use fixed random seeds that are completely separate from
+training noise so that every architecture and training seed is evaluated on the exact same corrupted test images.
 
 \paragraph{Severity levels.}
-Levels were fixed before any test evaluation, using a pilot CNN and validation images only.
-We chose five levels per degradation so that the pilot's accuracy fell roughly evenly from near its clean value to
-near the majority-class rate: $\sigma\in\{0.025, 0.05, 0.10, 0.15, 0.20\}$ and $s\in\{40, 32, 24, 16, 8\}$
-(Figure~\ref{fig:examples}).
-Heavier levels ($\sigma\in\{0.3,0.4,0.5\}$, $s=4$) are reported in the appendix as an extended sweep.
+We selected the corruption grid ahead of any test evaluation by testing a pilot CNN on the validation split. The goal
+was to span the full useful range, from mild corruption where accuracy barely moves down to severe degradation near
+the majority-class rate. This gave five primary levels per corruption: $\sigma\in\{0.025, 0.05, 0.10, 0.15, 0.20\}$
+for Gaussian noise and intermediate sizes $s\in\{40, 32, 24, 16, 8\}$ pixels for reduced resolution
+(Figure~\ref{fig:examples}). To check behavior past the point of collapse, we also include heavier settings
+($\sigma\in\{0.3, 0.4, 0.5\}$ and $s=4$) in the appendix.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.8\linewidth]{figures/fig_levels_examples.png}
-  \caption{One validation image at the five primary severity levels of each degradation (top: Gaussian noise;
-  bottom: reduced resolution). The levels were fixed on validation data before any test evaluation.}
+  \caption{Example validation face across the five primary severity levels for Gaussian noise (top) and reduced
+  resolution (bottom). All severity levels were fixed on validation data prior to test evaluation.}
   \label{fig:examples}
 \end{figure}
 
-\section{Models and protocol}
+\section{Models and Protocol}
 \label{sec:protocol}
 
 \paragraph{Models.}
-The \emph{baseline CNN} has three $3{\times}3$ convolutional blocks with 32, 64 and 128 channels, each followed by
-ReLU and $2{\times}2$ max pooling, then global average pooling and a linear layer (\num{params@cnn} parameters).
-It takes the $48{\times}48$ grayscale image, standardised with the training-set mean and standard deviation, and is
-trained from scratch.
-\emph{ResNet-18}~\cite{he2016resnet} starts from the torchvision ImageNet-1K weights (\num{params@resnet18} parameters).
-\emph{ViT-B/16}~\cite{dosovitskiy2021vit} starts from the public \texttt{google/vit-base-patch16-224} checkpoint
-(pre-trained on ImageNet-21k and fine-tuned on ImageNet-1k; \num{params@vit_b16} parameters).
-For both pretrained models the grayscale image is copied to three channels, resized to $224{\times}224$ and
-normalised as the checkpoint expects; the output layer is replaced by a seven-class layer and the whole network is
-fine-tuned.
-All models minimise cross-entropy.
+We compare three architectures that span roughly three orders of magnitude in parameter count. Our \emph{baseline
+CNN} is trained from scratch on $48{\times}48$ grayscale images standardized by the training-set mean and standard
+deviation; it consists of three $3{\times}3$ convolutional blocks (32, 64, and 128 channels), each followed by ReLU
+activation and $2{\times}2$ max pooling, feeding into global average pooling and a linear classifier
+(\num{params@cnn} parameters). \emph{ResNet-18}~\cite{he2016resnet} is initialized from torchvision's ImageNet-1K
+weights (\num{params@resnet18} parameters), and \emph{ViT-B/16}~\cite{dosovitskiy2021vit} starts from the public
+\texttt{google/vit-base-patch16-224} checkpoint, which was pretrained on ImageNet-21k and fine-tuned on ImageNet-1k
+(\num{params@vit_b16} parameters). For both pretrained backbones, each grayscale image is replicated across three
+channels, resized to $224{\times}224$, and normalized according to the checkpoint's expected statistics; we replace
+the classification head with a seven-class linear layer and fine-tune the entire network. Every model is trained with
+cross-entropy loss.
 
 \paragraph{Training and model selection.}
-The CNN and ResNet-18 use Adam~\cite{kingma2015adam} with a constant learning rate and batch size 128; the CNN trains
-for at most 150 epochs with early stopping (patience 15) and ResNet-18 for at most 12 epochs (patience 3).
-ViT-B/16 follows a standard fine-tuning recipe: AdamW~\cite{loshchilov2019adamw} with weight decay 0.01, batch size 32,
-four epochs, linear warm-up over the first 10\% of steps and linear decay afterwards.
-No augmentation other than the noise augmentation described below is used, so that adding noise is the only
-difference between training variants.
+The baseline CNN and ResNet-18 are optimized with Adam~\cite{kingma2015adam} using a constant learning rate and batch
+size 128, training for up to 150 epochs (early-stopping patience 15) for the CNN and up to 12 epochs (patience 3) for
+ResNet-18. For ViT-B/16 we follow a standard fine-tuning setup: AdamW~\cite{loshchilov2019adamw} with weight decay
+0.01, batch size 32, and four epochs, using linear warm-up over the first 10\% of steps followed by linear decay. We
+intentionally omit all other augmentations (such as random flips or crops) so that Gaussian noise is the sole
+variable separating standard and augmented runs.
 
-Every choice is made with one \emph{selection score} computed on validation images,
+All model-selection decisions rely on a single validation score,
 \begin{equation}
   S \;=\; \tfrac12\,\mathrm{Acc}_{\text{val}}^{\text{original}} \;+\; \tfrac12\,\mathrm{Acc}_{\text{val}}^{\text{noisy}},
   \label{eq:score}
 \end{equation}
-where the noisy validation set assigns each validation image to one of the five primary noise levels.
-Reduced-resolution images never enter the score, so results under reduced resolution measure transfer to a
-corruption that guided no decision.
-For each architecture we (i) pick the learning rate from a grid of three values (CNN: $\{3{\times}10^{-4},
-10^{-3}, 3{\times}10^{-3}\}$; ResNet-18: $\{3{\times}10^{-5}, 10^{-4}, 3{\times}10^{-4}\}$; ViT-B/16:
-$\{10^{-5}, 2{\times}10^{-5}, 5{\times}10^{-5}\}$) using standard training, (ii) pick the augmentation setting at that
-learning rate, and (iii) keep, within each run, the epoch with the highest $S$.
-Tuning uses seed~0 only.
-The selected settings were written to disk before the first test evaluation (Appendix~\ref{app:selection}).
+where the noisy validation accuracy is computed by assigning each validation image to one of the five primary noise
+levels. Reduced-resolution images never enter $S$, so test performance on low-resolution faces measures genuine
+transfer to an unseen corruption. For each architecture, we use seed~0 alone to (1) choose the learning rate from a
+three-point grid under standard training (CNN: $\{3{\times}10^{-4}, 10^{-3}, 3{\times}10^{-3}\}$; ResNet-18:
+$\{3{\times}10^{-5}, 10^{-4}, 3{\times}10^{-4}\}$; ViT-B/16: $\{10^{-5}, 2{\times}10^{-5}, 5{\times}10^{-5}\}$),
+(2) choose the noise-augmentation parameters at that learning rate, and (3) retain the epoch with the highest $S$
+within each training run. Every selected setting was saved and locked before the test set was evaluated
+(Appendix~\ref{app:selection}).
 
 \paragraph{Noise augmentation.}
-Each training image receives Gaussian noise with probability $p$; its standard deviation is drawn uniformly from
-$[0,\sigma_{\max}]$, independently per image and per epoch.
-We select $(p,\sigma_{\max})$ from $\{0.5, 0.8\}\times\{0.1, 0.2\}$ with the score $S$.
-The selected settings are $(\num{augp@cnn}, \num{augsigma@cnn})$ for the CNN, $(\num{augp@resnet18},
-\num{augsigma@resnet18})$ for ResNet-18 and $(\num{augp@vit_b16}, \num{augsigma@vit_b16})$ for ViT-B/16.
+During augmented training, each image is corrupted with probability $p$ by additive Gaussian noise whose standard
+deviation is drawn uniformly from $[0,\sigma_{\max}]$, sampled independently for every image and epoch. We select
+$(p,\sigma_{\max})$ from $\{0.5, 0.8\}\times\{0.1, 0.2\}$ using the validation score $S$, which picks
+$(\num{augp@cnn}, \num{augsigma@cnn})$ for the CNN, $(\num{augp@resnet18}, \num{augsigma@resnet18})$ for ResNet-18,
+and $(\num{augp@vit_b16}, \num{augsigma@vit_b16})$ for ViT-B/16.
 
-\paragraph{Final runs and metrics.}
-Each of the six configurations (three models, with and without noise augmentation) is trained with seeds 0, 1 and 2,
-and each final model is evaluated once on the test set under the original images and all severity levels.
-We report accuracy and macro-F1, which weights the seven classes equally, as the mean and sample standard deviation
-over the three seeds.
-These standard deviations describe training variability; they are not confidence intervals.
-To separate training variability from test-set sampling error we additionally give bootstrap intervals over test
-images with the trained models held fixed (Appendix~\ref{app:bootstrap}).
-For RQ2 we also report \emph{relative accuracy}, degraded accuracy divided by original accuracy, and the first
-tested level at which it falls below 90\%; this cut-off is a convention chosen for the project.
-As summaries we use the mean accuracy over the five primary noise levels (``noise avg.'') and over the five
-primary sizes (``resolution avg.'').
+\paragraph{Final runs and evaluation metrics.}
+Each of the six final configurations (three models, trained with and without noise augmentation) is run across three
+seeds (0, 1, and 2), and each trained model is evaluated once on the clean and degraded test sets. We report both
+overall accuracy and macro-F1 (which gives all seven expressions equal weight), summarized as the mean and sample
+standard deviation across the three seeds. Because these three-seed standard deviations capture training variability
+rather than confidence intervals, we complement them in Appendix~\ref{app:bootstrap} with bootstrap intervals over
+test images holding the trained models fixed. For RQ2, we also track \emph{relative accuracy} (degraded accuracy
+divided by the same model's clean accuracy) along with the first severity level where retention drops below 90\%, a
+threshold chosen as a practical cutoff for this study. To summarize curves concisely, we report ``noise avg.'' and
+``resolution avg.'', defined as the unweighted means across the five primary severity levels of each corruption.
 
 \paragraph{Reference checkpoints.}
 \label{sec:ref}
-The score in Eq.~\eqref{eq:score} rewards noise robustness when choosing the stopping epoch, which for standard
-training turned out to favour early checkpoints.
-To quantify the effect we trained a reference variant: standard training at the same learning rate, with the
-checkpoint chosen on original validation images only, as is common practice.
-These runs are reported separately in Section~\ref{sec:selection-effect} and do not replace the pre-specified protocol.
+Because Eq.~\eqref{eq:score} places half of its weight on noisy validation accuracy, it tended to pick earlier epochs
+during standard training than a clean-only criterion would. To see how much that rule itself moved our baseline
+numbers, we trained an additional set of reference runs using the exact same standard-training setup and learning
+rates, but picking the checkpoint that maximized original validation accuracy alone (the conventional approach). We
+analyze these reference runs separately in Section~\ref{sec:selection-effect} rather than altering the pre-specified
+protocol.
 
 \section{Results}
 \label{sec:results}
 
-Unless stated otherwise, numbers are test-set means over three seeds.
-
+Unless stated otherwise, all figures reported below are test-set averages over three random seeds.
 
 \begin{table}[t]
-  \caption{Test accuracy and macro-F1 (\%) on original images and averaged over the five primary severity levels of
-  each degradation; mean $\pm$ sample standard deviation over three seeds. Best mean per column in bold.}
+  \caption{Test accuracy and macro-F1 (\%) on original images and averaged across the five primary severity levels of
+  each corruption (mean $\pm$ sample standard deviation over three seeds; best mean per column in bold).}
   \label{tab:main}
   \centering
   \small
@@ -281,57 +287,62 @@ Unless stated otherwise, numbers are test-set means over three seeds.
   \resizebox{\linewidth}{!}{\input{generated/tab_main.tex}}
 \end{table}
 
-\subsection{RQ1: original images}
+\subsection{RQ1: Original Images}
 \label{sec:rq1}
-Accuracy on original images increases with model size and pre-training: \num{acc@cnn@std@clean}\% for the
-baseline CNN, \num{acc@resnet18@std@clean}\% for ResNet-18 and \num{acc@vit_b16@std@clean}\% for ViT-B/16
-(Table~\ref{tab:main}). The gaps of \num{archdiff@resnet18@cnn@std@clean} and
-\num{archdiff@vit_b16@resnet18@std@clean} points are large relative to both the seed-to-seed standard deviation
-(at most 1.4 points) and test-set sampling error (Appendix~\ref{app:bootstrap}).
-Macro-F1 is lower than accuracy for every model (\num{macro_f1@cnn@std@clean}, \num{macro_f1@resnet18@std@clean}
-and \num{macro_f1@vit_b16@std@clean}) because the small classes are recovered poorly: the CNN finds
-\num{recall@cnn@std@disgust@clean}\% of \emph{disgust} and \num{recall@cnn@std@fear@clean}\% of \emph{fear} images
-against \num{recall@cnn@std@happy@clean}\% of \emph{happy} images (Appendix~\ref{app:classes}).
-ViT-B/16 closes much of this gap (\emph{disgust} recall \num{recall@vit_b16@std@disgust@clean}\%).
-For orientation, the dataset's authors estimated human accuracy at $65\pm5\%$ on the unfiltered
-data~\cite{goodfellow2013challenges}; our filtered test set is not directly comparable.
 
-\subsection{RQ2: increasing noise and decreasing resolution}
-\label{sec:rq2}
-Under standard training all three models lose accuracy quickly (Figure~\ref{fig:degradation}).
-Relative accuracy falls below 90\% at $\sigma=0.05$ for every model, and at 32\,px for the CNN and ViT-B/16 and
-already at 40\,px for ResNet-18 (Table~\ref{tab:relative}).
-At $\sigma=0.10$ the models keep \num{rel@cnn@std@n0.1}\%, \num{rel@resnet18@std@n0.1}\% and
-\num{rel@vit_b16@std@n0.1}\% of their original accuracy.
-At the strongest primary levels the ranking of the models is gone: at $\sigma=0.20$ all three are within about three
-points of the majority-class rate of \num{majority}\% (\num{acc@cnn@std@n0.2}\%, \num{acc@resnet18@std@n0.2}\%,
-\num{acc@vit_b16@std@n0.2}\%), and at 8\,px all three are below it, with the model that is most accurate on
-original images now the least accurate (\num{acc@vit_b16@std@r8}\% for ViT-B/16 against \num{acc@cnn@std@r8}\%
-for the CNN).
-
-Averaged over the five levels, the \num{archdiff@resnet18@cnn@std@clean}-point advantage of ResNet-18 over the CNN
-shrinks to \num{archdiff@resnet18@cnn@std@navg} points under noise and \num{archdiff@resnet18@cnn@std@ravg} points
-under reduced resolution; neither difference can be distinguished from zero given test-set sampling error
+On the uncorrupted test images, accuracy climbs steadily with model capacity and pretraining: the baseline CNN
+reaches \num{acc@cnn@std@clean}\%, ResNet-18 reaches \num{acc@resnet18@std@clean}\%, and ViT-B/16 reaches
+\num{acc@vit_b16@std@clean}\% (Table~\ref{tab:main}). The step-ups between consecutive models
+(\num{archdiff@resnet18@cnn@std@clean} and \num{archdiff@vit_b16@resnet18@std@clean} percentage points) are well
+outside both the seed-to-seed standard deviations (at most 1.4 points) and test-set sampling uncertainty
 (Appendix~\ref{app:bootstrap}).
-ViT-B/16 keeps part of its advantage over the CNN, \num{archdiff@vit_b16@cnn@std@navg} and
-\num{archdiff@vit_b16@cnn@std@ravg} points against \num{archdiff@vit_b16@cnn@std@clean} on original images.
-In relative terms the small CNN is the most robust of the three at every level of both degradations
-(Table~\ref{tab:relative}).
-This matches the observation on ImageNet-C that gains in clean accuracy were not accompanied by gains in relative
-robustness~\cite{hendrycks2019benchmarking}: the larger pretrained models bought accuracy on original images, not
-robustness.
+
+Macro-F1 sits noticeably below overall accuracy across all three models (\num{macro_f1@cnn@std@clean},
+\num{macro_f1@resnet18@std@clean}, and \num{macro_f1@vit_b16@std@clean}), largely because class imbalance hurts
+recall on rare or subtle expressions. For instance, the baseline CNN correctly identifies
+\num{recall@cnn@std@happy@clean}\% of \emph{happy} faces, yet recovers only \num{recall@cnn@std@disgust@clean}\% of
+\emph{disgust} and \num{recall@cnn@std@fear@clean}\% of \emph{fear} examples (Appendix~\ref{app:classes}). ViT-B/16
+narrows this gap considerably, lifting \emph{disgust} recall to \num{recall@vit_b16@std@disgust@clean}\%. For rough
+context, the dataset's creators estimated human accuracy on unfiltered FER-2013 at
+$65\pm5\%$~\cite{goodfellow2013challenges}, though our deduplicated split is not directly comparable.
+
+\subsection{RQ2: Performance under Noise and Reduced Resolution}
+\label{sec:rq2}
+
+Under standard training, performance falls off rapidly for all three architectures as image quality drops
+(Figure~\ref{fig:degradation}). Every model loses more than 10\% of its clean accuracy by $\sigma=0.05$; under
+downsampling, retention dips below 90\% at 32\,px for the CNN and ViT-B/16, and as early as 40\,px for ResNet-18
+(Table~\ref{tab:relative}). By $\sigma=0.10$, the CNN, ResNet-18, and ViT-B/16 retain only
+\num{rel@cnn@std@n0.1}\%, \num{rel@resnet18@std@n0.1}\%, and \num{rel@vit_b16@std@n0.1}\% of their original accuracy,
+respectively. Once degradation becomes severe, the clean-image hierarchy breaks down entirely. At $\sigma=0.20$, all
+three models sit within roughly three points of the \num{majority}\% majority-class rate (\num{acc@cnn@std@n0.2}\%
+for the CNN, \num{acc@resnet18@std@n0.2}\% for ResNet-18, and \num{acc@vit_b16@std@n0.2}\% for ViT-B/16). At 8\,px,
+all three drop below that baseline, and the ordering actually reverses: ViT-B/16, the strongest model on clean
+images, ends up the weakest at \num{acc@vit_b16@std@r8}\%, compared with \num{acc@cnn@std@r8}\% for the baseline CNN.
+
+Looking across all five primary levels, the \num{archdiff@resnet18@cnn@std@clean}-point clean advantage that
+ResNet-18 holds over the small CNN essentially disappears, shrinking to \num{archdiff@resnet18@cnn@std@navg} points
+under noise and \num{archdiff@resnet18@cnn@std@ravg} points under reduced resolution; neither gap can be separated
+from zero once test-set sampling error is accounted for (Appendix~\ref{app:bootstrap}). ViT-B/16 holds onto a
+meaningful portion of its margin over the CNN (\num{archdiff@vit_b16@cnn@std@navg} points under noise and
+\num{archdiff@vit_b16@cnn@std@ravg} under reduced resolution, down from \num{archdiff@vit_b16@cnn@std@clean} on clean
+images), yet in relative terms the 94K-parameter CNN retains a higher share of its clean accuracy than either
+pretrained model at every single severity level (Table~\ref{tab:relative}). This mirrors what
+\citet{hendrycks2019benchmarking} saw on ImageNet-C: scaling up and pretraining raised clean performance
+substantially, without making the models more resilient in relative terms.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/fig_degradation_acc.pdf}
-  \caption{Test accuracy against severity for Gaussian noise (left) and reduced resolution (right). Lines show the
-  mean over three seeds and bands one standard deviation. The dotted line is the majority-class rate.}
+  \caption{Test accuracy as a function of corruption severity for Gaussian noise (left) and reduced resolution
+  (right). Curves show three-seed means, shaded bands show one sample standard deviation, and the dotted line marks
+  the majority-class rate.}
   \label{fig:degradation}
 \end{figure}
 
 \begin{table}[t]
-  \caption{Relative accuracy (\%; degraded accuracy divided by original accuracy, mean over seeds) and the first
-  tested level at which it falls below 90\%.}
+  \caption{Relative accuracy (\%; degraded accuracy divided by original accuracy, averaged over three seeds) and the
+  first tested severity level where retention drops below 90\%.}
   \label{tab:relative}
   \centering
   \small
@@ -339,129 +350,160 @@ robustness.
   \resizebox{\linewidth}{!}{\input{generated/tab_relative.tex}}
 \end{table}
 
-\subsection{RQ3: noise augmentation}
+\subsection{RQ3: Effect of Gaussian-Noise Augmentation}
 \label{sec:rq3}
-\emph{Original images.} Noise augmentation changes accuracy on original images by \num{delta@cnn@clean} points for
-the CNN, \num{delta@resnet18@clean} for ResNet-18 and \num{delta@vit_b16@clean} for ViT-B/16 (paired by seed,
-Figure~\ref{fig:aug}); none of these changes is large compared with seed variation.
-Against the clean-selected reference checkpoints of Section~\ref{sec:selection-effect}, the stronger baseline on
-original images, the changes are \num{augref@cnn@clean}, \num{augref@resnet18@clean} and
-\num{augref@vit_b16@clean} points.
 
-\emph{Noisy images.} The gain is large for every model and grows with severity: \num{delta@cnn@navg},
-\num{delta@resnet18@navg} and \num{delta@vit_b16@navg} points averaged over the five levels, and
-\num{delta@cnn@n0.2}, \num{delta@resnet18@n0.2} and \num{delta@vit_b16@n0.2} points at $\sigma=0.20$.
-With augmentation every model keeps at least 90\% of its original accuracy up to $\sigma=0.10$
-(Table~\ref{tab:relative}).
+\paragraph{Clean images.}
+Adding Gaussian noise during training comes with little to no clean-accuracy penalty. Paired by seed against standard
+training (Figure~\ref{fig:aug}), noise augmentation produces small shifts on original test accuracy
+(\num{delta@cnn@clean} points for the CNN, \num{delta@resnet18@clean} for ResNet-18, and \num{delta@vit_b16@clean}
+for ViT-B/16), all modest relative to seed-to-seed variability. Even when measured against the clean-selected
+reference checkpoints of Section~\ref{sec:selection-effect}, which provide a slightly stronger clean baseline, the
+drop stays under one percentage point for every architecture (\num{augref@cnn@clean}, \num{augref@resnet18@clean},
+and \num{augref@vit_b16@clean} points).
 
-\emph{Reduced resolution.} No reduced-resolution image was used in training or selection, so this is a test of
-transfer. The benefit depends on the model: \num{delta@resnet18@ravg} points on average for ResNet-18 and
-\num{delta@vit_b16@ravg} for ViT-B/16, but only \num{delta@cnn@ravg} for the CNN.
-It is largest at intermediate sizes (16\,px: \num{delta@resnet18@r16}, \num{delta@vit_b16@r16} and
-\num{delta@cnn@r16} points) and mostly gone at 8\,px.
-This is what the frequency argument of \citet{yin2019fourier} predicts: noise augmentation discourages reliance on
-high-frequency detail, which is what down-sampling removes, but it cannot help once too little low-frequency
-content is left to carry the expression.
-Why the small CNN gains so little is not answered by our experiments.
-With augmentation the pretrained models keep their advantage over the CNN under both degradations
-(Table~\ref{tab:main}), so the conclusion of Section~\ref{sec:rq2} applies to standard training only.
+\paragraph{Noisy images.}
+On noisy test images, the gains are substantial across the board and widen steadily with corruption severity.
+Averaged over the five primary noise levels, the accuracy changes are \num{delta@cnn@navg} points for the CNN,
+\num{delta@resnet18@navg} for ResNet-18, and \num{delta@vit_b16@navg} for ViT-B/16; at $\sigma=0.20$, they grow to
+\num{delta@cnn@n0.2}, \num{delta@resnet18@n0.2}, and \num{delta@vit_b16@n0.2} points. Put differently, noise
+augmentation allows all three architectures to hold onto at least 90\% of their clean accuracy through $\sigma=0.10$
+(Table~\ref{tab:relative}), whereas standard-trained models already fall below that threshold at $\sigma=0.05$.
+
+\paragraph{Transfer to reduced resolution.}
+Because downsampled images never appear during training or model selection, performance under reduced resolution
+tests out-of-corruption transfer. Here, the pretrained models and the small CNN diverge sharply: noise augmentation
+brings clear low-resolution gains for ResNet-18 (\num{delta@resnet18@ravg} points on average) and ViT-B/16
+(\num{delta@vit_b16@ravg} points), compared with only \num{delta@cnn@ravg} points for the baseline CNN. The transfer
+benefit peaks at moderate downsampling (at 16\,px, the gains are \num{delta@resnet18@r16}, \num{delta@vit_b16@r16},
+and \num{delta@cnn@r16} points) and largely fades out by 8\,px. This pattern aligns well with the frequency analysis
+of \citet{yin2019fourier}: training on noisy images discourages a network from leaning on fine high-frequency
+textures that downsampling wipes out, but once an image shrinks to $8{\times}8$, too little coarse structure remains
+for any model to read the expression reliably. Our experiments do not pinpoint why the small CNN sees almost none of
+this transfer. One clear consequence of these gains, however, is that the pretrained networks preserve their
+advantage over the baseline CNN across both corruptions once trained with noise (Table~\ref{tab:main}); the breakdown
+in model ranking seen in Section~\ref{sec:rq2} is therefore specific to standard training rather than an inherent
+weakness of the larger models.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/fig_augmentation_effect.pdf}
-  \caption{Change in test accuracy from noise augmentation (augmented minus standard training, paired by seed;
-  mean $\pm$ standard deviation). Reduced resolution was never used in training or selection.}
+  \caption{Effect of Gaussian-noise augmentation on test accuracy (augmented minus standard training, paired by seed;
+  mean $\pm$ sample standard deviation). Reduced-resolution images were never used in training or model selection.}
   \label{fig:aug}
 \end{figure}
 
-\subsection{Where the errors go}
+\subsection{Failure Modes and Prediction Collapse}
 \label{sec:collapse}
-Accuracy near the majority-class rate could mean that a model guesses, or that it has stopped responding to the
-image. Figure~\ref{fig:collapse} shows the share of test images assigned to the single most-predicted class.
-On original images this share is \num{top@vit_b16@std@clean}--\num{top@cnn@std@clean}\%, close to the
-\num{majority}\% of the largest true class.
-Under standard training it rises with severity: at $\sigma=0.20$ the CNN, ResNet-18 and ViT-B/16 assign
-\num{top@cnn@std@n0.2}\%, \num{top@resnet18@std@n0.2}\% and \num{top@vit_b16@std@n0.2}\% of all test images to one
-class, and at 8\,px \num{top@cnn@std@r8}\%, \num{top@resnet18@std@r8}\% and \num{top@vit_b16@std@r8}\%.
-The preferred class is not always the majority class and changes with the seed (\emph{happy}, \emph{sad} or
-\emph{neutral}), which is how accuracy can fall below the majority rate.
-Models trained with noise augmentation do not collapse under noise (\num{top@resnet18@aug@n0.2}--\num{top@cnn@aug@n0.2}\%
-at $\sigma=0.20$) but still collapse at 8\,px, in line with the weak transfer at that size.
 
-Per class, \emph{happy} is the most robust expression: at $\sigma=0.10$ the three standard models still recover
-\num{recall@cnn@std@happy@n0.1}\%, \num{recall@resnet18@std@happy@n0.1}\% and \num{recall@vit_b16@std@happy@n0.1}\%
-of \emph{happy} images, while recall of \emph{disgust} is at most \num{recall@cnn@std@disgust@n0.1}\% and recall of
-\emph{fear} drops to \num{recall@cnn@std@fear@n0.1}\%, \num{recall@resnet18@std@fear@n0.1}\% and
-\num{recall@vit_b16@std@fear@n0.1}\% (Appendix~\ref{app:classes}).
+When a classifier's accuracy falls near the majority-class rate, it is worth checking whether its mistakes are spread
+across classes or whether it has simply stopped reacting to the input. Figure~\ref{fig:collapse} tracks the fraction
+of test images assigned to each model's single most frequently predicted class. On original images, that share sits
+between \num{top@vit_b16@std@clean}\% and \num{top@cnn@std@clean}\%, closely matching the \num{majority}\% prevalence
+of \emph{happy} in the test split. Under standard training, however, predictions concentrate sharply as degradation
+worsens. At $\sigma=0.20$, the CNN, ResNet-18, and ViT-B/16 route \num{top@cnn@std@n0.2}\%,
+\num{top@resnet18@std@n0.2}\%, and \num{top@vit_b16@std@n0.2}\% of all test inputs into a single class; at 8\,px,
+those shares reach \num{top@cnn@std@r8}\%, \num{top@resnet18@std@r8}\%, and \num{top@vit_b16@std@r8}\%. Because the
+fallback class varies across random seeds (often \emph{sad} or \emph{neutral} rather than \emph{happy}), accuracy
+can sink below the majority-class baseline. Training with Gaussian noise prevents this collapse under noise, keeping
+the top predicted class share within \num{top@resnet18@aug@n0.2}--\num{top@cnn@aug@n0.2}\% at $\sigma=0.20$, though
+collapse still returns at 8\,px in line with the limited transfer at extreme downsampling.
+
+Breaking down errors by class shows that \emph{happy} is by far the most resilient expression
+(Appendix~\ref{app:classes}). At $\sigma=0.10$, the standard-trained CNN, ResNet-18, and ViT-B/16 still recover
+\num{recall@cnn@std@happy@n0.1}\%, \num{recall@resnet18@std@happy@n0.1}\%, and \num{recall@vit_b16@std@happy@n0.1}\%
+of \emph{happy} faces. Over the same noisy inputs, recall for \emph{disgust} essentially vanishes (at most
+\num{recall@cnn@std@disgust@n0.1}\% across all three models), and \emph{fear} recall drops to
+\num{recall@cnn@std@fear@n0.1}\%, \num{recall@resnet18@std@fear@n0.1}\%, and \num{recall@vit_b16@std@fear@n0.1}\%.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/fig_prediction_collapse.pdf}
-  \caption{Share of test images assigned to the single most-predicted class. A value near the dotted line means the
-  predictions are spread over classes roughly as the true labels are; a high value means the model has collapsed
-  onto one class.}
+  \caption{Share of test images assigned to each model's single most frequently predicted class. Values near the
+  dotted majority-class line indicate balanced class usage; high values reflect collapse onto a single prediction.}
   \label{fig:collapse}
 \end{figure}
 
-\subsection{Effect of the checkpoint-selection rule}
+\subsection{Sensitivity to the Checkpoint-Selection Rule}
 \label{sec:selection-effect}
-For models trained without noise, the noisy-validation half of the score (Eq.~\ref{eq:score}) is erratic and tends
-to peak early (Appendix~\ref{app:curves}): for ResNet-18 the selected epochs were \num{epochs@resnet18@std}, although accuracy on
-original validation images was still rising after the first epoch in two of the three runs.
 
-The reference runs repeat standard training with the checkpoint chosen on original validation accuracy alone, the
-conventional rule (Table~\ref{tab:ref}, Appendix~\ref{app:selection}). For ResNet-18 and the CNN they stop at the same epoch or later and are on average \num{refabs@resnet18@clean} and
-\num{refabs@cnn@clean} points more accurate on original images and \num{refabs@resnet18@navg} and
-\num{refabs@cnn@navg} points less accurate under noise; the sign is the same in all three seeds for ResNet-18 but
-not for the CNN.
-For ViT-B/16, fine-tuned for four epochs only, the two rules stop at most one epoch apart and differ by
-\num{refdelta@vit_b16@clean} points on original images and \num{refdelta@vit_b16@navg} under noise.
-On average the pre-specified rule thus understates standard training on original images and overstates it under
-noise, by a few points for the two smaller models.
-The conclusions of Sections~\ref{sec:rq2} and~\ref{sec:rq3} do not depend on it: with the conventional checkpoints
-ResNet-18 is still no better than the CNN under noise (\num{acc@resnet18@ref@navg}\% against
-\num{acc@cnn@ref@navg}\%), ViT-B/16 remains the most accurate model, and noise augmentation still adds
-\num{augrefabs@cnn@navg} to \num{augrefabs@resnet18@navg} points under noise at a cost of less than one point on
-original images.
+When a model is trained only on clean images, its validation accuracy on noisy inputs fluctuates erratically across
+epochs and often peaks very early in training (Appendix~\ref{app:curves}). Because our selection score $S$
+(Eq.~\ref{eq:score}) weights noisy validation accuracy equally with clean accuracy, it sometimes stopped standard
+training well before clean performance plateaued: for ResNet-18, $S$ selected epochs \num{epochs@resnet18@std}, even
+though clean validation accuracy kept rising after epoch~1 in two of the three seeds.
 
-\section{Discussion and limitations}
+To check how much this choice affected our baseline numbers, we repeated standard training using the conventional
+rule of picking whichever checkpoint achieved the highest original validation accuracy (Table~\ref{tab:ref},
+Appendix~\ref{app:selection}). Under that clean-only rule, both ResNet-18 and the baseline CNN stop at the same epoch
+or later. On average, the conventional checkpoints gain \num{refabs@resnet18@clean} points (ResNet-18) and
+\num{refabs@cnn@clean} points (CNN) on original images, while giving back \num{refabs@resnet18@navg} and
+\num{refabs@cnn@navg} points under noise; the direction of both shifts is consistent across all three seeds for
+ResNet-18, though mixed for the CNN. For ViT-B/16, which is fine-tuned for only four epochs, the two selection rules
+land at most one epoch apart and differ by less than a point on average (\num{refdelta@vit_b16@clean} on clean images
+and \num{refdelta@vit_b16@navg} under noise).
+
+In short, our pre-specified score nudges standard training a few points toward noise robustness at the expense of
+clean accuracy on the two smaller networks, while barely touching ViT-B/16. None of the headline findings in
+Sections~\ref{sec:rq2} and~\ref{sec:rq3} depend on this choice, however: even with conventional clean-selected
+checkpoints, ResNet-18 still fails to outperform the baseline CNN under noise (\num{acc@resnet18@ref@navg}\% vs.\
+\num{acc@cnn@ref@navg}\%), ViT-B/16 remains the top model overall, and noise augmentation still adds
+\num{augrefabs@cnn@navg} to \num{augrefabs@resnet18@navg} points under noise while costing less than one point on
+clean images.
+
+\section{Discussion and Limitations}
 \label{sec:discussion}
-\paragraph{What the results say.}
-Accuracy on original images ranks the three models as expected, but that ranking is a poor guide to accuracy on
-degraded images: under standard training the lead of ResNet-18 over a network with less than one percent of its
-parameters disappears, and at the strongest levels all models, including ViT-B/16, stop using the image.
-A single, inexpensive change to training, Gaussian-noise augmentation, removes most of the loss under noise at
-little or no cost on original images and, for the pretrained models, also helps under a degradation it was never
-shown. For anyone who expects noisy or small inputs, the practical reading is to evaluate under those conditions
-and to train with noise.
+
+\paragraph{Practical implications.}
+On clean FER-2013 images, the three models line up exactly as capacity and pretraining would suggest. Once images
+degrade, however, that clean ranking becomes a poor guide: under standard training, ResNet-18 loses its entire margin
+over a CNN with less than one percent as many parameters, and at extreme severity even ViT-B/16 stops responding to
+the image content and collapses onto a single class. Adding Gaussian noise during training is an inexpensive fix that
+recovers most of the lost performance on noisy inputs at little or no cost to clean accuracy, and for the pretrained
+networks it also improves resilience to downsampling despite never seeing low-resolution images during training. For
+practitioners deploying expression classifiers on noisy or small face crops, the takeaway is straightforward: test
+models under realistic degradation rather than relying on clean accuracy, and include noise augmentation by default.
 
 \paragraph{Limitations.}
-(i) One dataset, with noisy labels and only $48{\times}48$ grayscale images; the labels describe expressions, not
-emotions. (ii) Two synthetic degradations applied one at a time; real images combine blur, noise, compression and
-pose. (iii) The three methods differ in architecture, size and pre-training at once, so no difference can be
-attributed to a single factor. (iv) Three seeds per configuration: the standard deviations are rough, although
-the main effects are many standard deviations wide. (v) The selected learning rate is the largest value of the
-grid for both pretrained models (a post-hoc check with one larger value changed the score $S$ by less than its
-seed-to-seed standard deviation; Appendix~\ref{app:selection}), and ViT-B/16 was fine-tuned for four epochs only.
-(vi) The checkpoint rule matters (Section~\ref{sec:selection-effect}). (vii) By design no flips, crops or other
-augmentation were used, which keeps the comparison clean but leaves accuracy on original images below the best
-published results. (viii) Noise is added at $48{\times}48$ before the pretrained models up-sample the image, so they
-see spatially correlated noise; this was required to give all models the same degraded images.
+Several scope and design choices qualify these conclusions. First, all experiments run on a single dataset of
+$48{\times}48$ grayscale crops with known label noise, and those labels reflect annotator judgments of facial
+expressions rather than true emotions. We also evaluate only two synthetic corruptions in isolation, whereas real
+camera feeds combine sensor noise, motion blur, compression artifacts, lighting shifts, and pose variation at the
+same time.
 
-\paragraph{Extensions.}
-The same protocol can be run with other degradations (blur, compression, occlusion, low light) and with combinations
-of them; with the FER+ label distributions~\cite{barsoum2016ferplus}, to separate label noise from model error; and
-with augmentation that mixes noise and down-sampling, to see whether the collapse at very low resolution can be
-avoided. Comparing models at matched accuracy on original images would show whether any of them is robust beyond
-what its clean accuracy predicts~\cite{taori2020measuring}.
+Second, our three models differ simultaneously in architecture, parameter count, and pretraining data, so these
+results compare end-to-end modeling choices rather than isolating any single factor. Compute constraints also limited
+us to three random seeds per configuration, making the reported standard deviations rough estimates (though the main
+effects span many standard deviations). In addition, the selected learning rate fell at the top of our grid for both
+pretrained models, and ViT-B/16 was fine-tuned for only four epochs. A post-hoc check one step above the grid changed
+the validation score $S$ by less than its seed-to-seed standard deviation (Appendix~\ref{app:selection}), so there is
+no sign of a large missed gain, but a single seed cannot rule out a modest one. As shown in
+Section~\ref{sec:selection-effect}, the checkpoint-selection rule itself also shifts standard-training results by a
+few points for the smaller networks.
+
+Finally, two deliberate protocol constraints affect how the raw numbers should be read. To isolate the effect of
+Gaussian noise cleanly, we omitted standard spatial augmentations such as random flips and crops, which leaves our
+clean accuracies below the highest figures reported in the literature. Likewise, because degradations are applied
+once at the native $48{\times}48$ resolution so that every model is judged on the exact same inputs, upsampling to
+$224{\times}224$ introduces spatial correlation into the Gaussian noise seen by ResNet-18 and ViT-B/16.
+
+\paragraph{Future directions.}
+The same validation-locked protocol can be extended naturally in several ways: evaluating additional and combined
+corruptions (blur, compression, occlusion, and low light), repeating the study with FER+ crowd-sourced label
+distributions~\cite{barsoum2016ferplus} to disentangle label ambiguity from model error, and combining noise with
+downsampling during training to see whether extreme-resolution collapse at 8\,px can be prevented. Comparing
+architectures at matched clean accuracy would also clarify whether any model class provides robustness beyond what
+its clean performance alone predicts~\cite{taori2020measuring}.
 
 \section{Conclusion}
 \label{sec:conclusion}
-On FER-2013, accuracy on original images overstates how well expression classifiers work on noisy or
-low-resolution images, and it overstates the advantage of larger pretrained models most.
-Gaussian-noise augmentation is a cheap and effective remedy for noise and, for pretrained models, a partial remedy
-for low resolution. Reports of robustness should state the degraded accuracy itself, the relative accuracy, and
-the rule used to select checkpoints.
+
+Clean test accuracy on FER-2013 gives an overly optimistic picture of how facial-expression classifiers hold up under
+noise and low resolution, and it exaggerates the advantage of larger pretrained models under standard training.
+Adding Gaussian noise during training offers a simple, low-cost defense that restores much of the lost performance on
+noisy inputs and, for pretrained models, transfers partially to unseen resolution loss as well. Going forward,
+robustness evaluations are most informative when they report absolute degraded accuracy, relative retention, and the
+checkpoint-selection rule side by side.
 
 \begin{ack}
 \pending{Statement of contributions and of AI-tool use, as required by the course.}
@@ -475,70 +517,71 @@ the rule used to select checkpoints.
 \appendix
 \raggedbottom
 
-\section{Hyperparameter selection}
+\section{Hyperparameter Selection and Run Details}
 \label{app:selection}
-Table~\ref{tab:selection} lists the selection score $S$ (Eq.~\ref{eq:score}) of every tuning run; the selected
-setting is in bold. Tuning runs use seed 0.
-For ViT-B/16 the seed-0 final run of each variant is the selected tuning run itself (identical configuration and
-seed), evaluated on the test set once the selection was frozen; the CNN and ResNet-18 seed-0 runs were retrained.
+
+Table~\ref{tab:selection} lists the validation selection score $S$ (Eq.~\ref{eq:score}) for every seed-0 tuning run,
+with each chosen configuration in bold. For ViT-B/16, the seed-0 final run of each variant reuses the selected tuning
+run directly (identical configuration and seed), evaluated once on the test set after settings were locked; the CNN
+and ResNet-18 seed-0 runs were retrained.
 
 \begin{table}[H]
-  \caption{Selection scores on validation images. Left: learning-rate grid under standard training. Right:
-  augmentation grid at the selected learning rate.}
+  \caption{Validation selection scores $S$ across tuning grids. Left: learning-rate search under standard training.
+  Right: noise-augmentation search at the selected learning rate.}
   \label{tab:selection}
   \centering
   \small
   \input{generated/tab_selection.tex}
 \end{table}
 
-Table~\ref{tab:ref} compares the two checkpoint rules for standard training (Section~\ref{sec:selection-effect}).
-Runs with the same seed were retrained, and training on a GPU is not bit-reproducible, so a single difference of the
-size of the seed standard deviation should not be over-read.
+Table~\ref{tab:ref} compares the two checkpoint-selection rules for standard training
+(Section~\ref{sec:selection-effect}). Because the reference models were trained in separate runs and GPU training is
+not bit-for-bit deterministic, any single difference on the scale of the seed standard deviation should be
+interpreted with caution.
 
 \begin{table}[H]
-  \caption{Standard training with the checkpoint chosen by the pre-specified score $S$ or on original validation
-  accuracy only. Test accuracy (\%), mean $\pm$ standard deviation over three seeds; the difference rows are paired
-  by seed (mean $\pm$ standard deviation of the three differences).}
+  \caption{Standard training with checkpoints chosen by the pre-specified score $S$ versus original validation
+  accuracy alone. Test accuracy (\%), mean $\pm$ sample standard deviation over three seeds; difference rows are
+  paired by seed (mean $\pm$ standard deviation of the three differences).}
   \label{tab:ref}
   \centering
   \small
   \input{generated/tab_ref.tex}
 \end{table}
 
-\paragraph{Learning-rate check.}
-The selected learning rate is the largest grid value for both pretrained models. After the protocol was complete we
-therefore ran standard training once more at one larger value (seed~0, validation images only; the result was not
-used for any selection or test evaluation).
-ResNet-18 at \num{lrcheck@resnet18@lr} reached $S=\num{lrcheck@resnet18@score}$ (original
-\num{lrcheck@resnet18@clean}\%, noisy \num{lrcheck@resnet18@noisy}\%), against \num{lrcheck@resnet18@selscore} at
-the selected \num{lr@resnet18}.
-ViT-B/16 at \num{lrcheck@vit_b16@lr} reached $S=\num{lrcheck@vit_b16@score}$ (\num{lrcheck@vit_b16@clean}\%,
-\num{lrcheck@vit_b16@noisy}\%), against \num{lrcheck@vit_b16@selscore} at the selected \num{lr@vit_b16}.
-For comparison, the standard deviation of $S$ over the three seeds at the selected values is
-\num{scoresd@resnet18} and \num{scoresd@vit_b16}.
-A single seed cannot exclude a small gain from a larger learning rate, but the check gives no sign of a large one.
+\paragraph{Post-hoc learning-rate check.}
+The chosen learning rate fell at the upper edge of our grid for both pretrained models. After completing the main
+protocol, we ran standard training once more at one step higher (seed~0, validation images only; these runs played no
+part in selection or test evaluation). ResNet-18 at \num{lrcheck@resnet18@lr} reached
+$S=\num{lrcheck@resnet18@score}$ (\num{lrcheck@resnet18@clean}\% original, \num{lrcheck@resnet18@noisy}\% noisy),
+compared with \num{lrcheck@resnet18@selscore} at the selected \num{lr@resnet18}. ViT-B/16 at
+\num{lrcheck@vit_b16@lr} reached $S=\num{lrcheck@vit_b16@score}$ (\num{lrcheck@vit_b16@clean}\% original,
+\num{lrcheck@vit_b16@noisy}\% noisy), compared with \num{lrcheck@vit_b16@selscore} at the selected \num{lr@vit_b16}.
+For comparison, the three-seed standard deviation of $S$ at the chosen learning rates is \num{scoresd@resnet18} for
+ResNet-18 and \num{scoresd@vit_b16} for ViT-B/16. A single seed cannot rule out a slight improvement from a larger
+step size, but there is no indication of a meaningful gain.
 
 \paragraph{Compute and software.}
-All runs used a single NVIDIA T4 GPU with automatic mixed precision.
-The tuning runs, the \num{nfinal} protocol runs and the CNN and ResNet-18 reference runs were run on Google Colab
-with PyTorch~2.14; the ViT-B/16 reference runs and the learning-rate check were run on Kaggle with PyTorch~2.11,
-using the same code, data file and frozen settings. The ViT-B/16 rows of Table~\ref{tab:ref} and the learning-rate
-check therefore compare runs made with two library versions.
-Training the \num{nfinal} protocol runs and the \num{nref} reference runs took about \num{gpuhours@final} GPU-hours
-in total, roughly 20 minutes per ViT-B/16 run, not counting tuning and test evaluation.
+All experiments ran on a single NVIDIA T4 GPU with automatic mixed precision. The tuning runs, all \num{nfinal}
+protocol runs, and the CNN and ResNet-18 reference runs were executed on Google Colab with PyTorch~2.14. The ViT-B/16
+reference runs and the post-hoc learning-rate check were executed on Kaggle with PyTorch~2.11 using the exact same
+code, deduplicated dataset, and locked settings; consequently, the ViT-B/16 rows of Table~\ref{tab:ref} and the
+learning-rate check compare runs across two PyTorch versions. Training the \num{nfinal} protocol runs and \num{nref}
+reference runs required roughly \num{gpuhours@final} GPU-hours in total, or about 20 minutes per ViT-B/16 run,
+excluding tuning and test evaluation.
 
-\section{Validation curves}
+\section{Validation Curves}
 \label{app:curves}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=\linewidth]{figures/fig_learning_curves.pdf}
-  \caption{Validation accuracy per epoch under standard training, on original (solid) and noisy (dashed) validation
-  images, one line per seed. Markers show the checkpoint chosen by the pre-specified score.}
+  \caption{Validation accuracy per epoch under standard training on original (solid) and noisy (dashed) validation
+  images, with one curve per seed. Markers indicate the checkpoint selected by the pre-specified score $S$.}
   \label{fig:curves}
 \end{figure}
 
-\section{Accuracy at every severity level}
+\section{Accuracy Across All Severity Levels}
 \label{app:levels}
 
 \begin{table}[H]
@@ -558,35 +601,36 @@ in total, roughly 20 minutes per ViT-B/16 run, not counting tuning and test eval
 \end{table}
 
 \begin{table}[H]
-  \caption{Change in test accuracy from noise augmentation at every primary level (percentage points; augmented
-  minus standard training, paired by seed).}
+  \caption{Change in test accuracy from Gaussian-noise augmentation at every primary level (percentage points;
+  augmented minus standard training, paired by seed).}
   \centering
   \scriptsize
   \setlength{\tabcolsep}{2.5pt}
   \resizebox{\linewidth}{!}{\input{generated/tab_aug_delta.tex}}
 \end{table}
 
-\section{Test-set sampling uncertainty}
+\section{Test-Set Sampling Uncertainty}
 \label{app:bootstrap}
-Table~\ref{tab:bootstrap} gives 95\% percentile-bootstrap intervals obtained by resampling the \num{ntest} test
-images 5{,}000 times with the trained models held fixed. They describe test-set sampling error only and
-complement the seed standard deviations in the main text.
+
+Table~\ref{tab:bootstrap} reports 95\% percentile-bootstrap intervals obtained by resampling the \num{ntest} test
+images 5{,}000 times while keeping the trained models fixed. These intervals isolate test-set sampling uncertainty
+and complement the seed-to-seed standard deviations reported in the main text.
 
 \begin{table}[H]
-  \caption{Seed-averaged test accuracy and differences with 95\% bootstrap intervals over test images.
-  $^{*}$: interval excludes zero. ``clean-sel.'': standard training with the checkpoint chosen on original
-  validation accuracy only.}
+  \caption{Seed-averaged test accuracy and pairwise differences with 95\% bootstrap intervals over test images.
+  $^{*}$: interval excludes zero. ``clean-sel.'': standard training with checkpoints selected on original validation
+  accuracy only.}
   \label{tab:bootstrap}
   \centering
   \small
   \input{generated/tab_bootstrap.tex}
 \end{table}
 
-\section{Per-class results}
+\section{Per-Class Results}
 \label{app:classes}
 
 \begin{table}[H]
-  \caption{Per-class recall (\%) on original test images, mean over three seeds.}
+  \caption{Per-class recall (\%) on original test images, averaged over three seeds.}
   \centering
   \small
   \input{generated/tab_recall.tex}
@@ -595,7 +639,7 @@ complement the seed standard deviations in the main text.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.96\linewidth]{figures/fig_per_class_recall.pdf}
-  \caption{Per-class recall at every primary severity level.}
+  \caption{Per-class recall across all primary severity levels.}
 \end{figure}
 
 \end{document}
